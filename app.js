@@ -19,10 +19,10 @@ window.muatLibraryPDF = async function() {
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYnIaYGBjpKR8efmRqOGu9FPbydSTh1FeN6im856IWRXdC1QvHDDY8Kp5w3lU0p9T6/exec";
   const SECRET_API_KEY = "GKPI_HUB_SECURE_2026";
 
-// TAMBAHKAN TEPAT DI SINI (Di luar dari fungsi apapun)
-const supabaseUrl = 'https://qhvfrcriptbyunmduizu.supabase.co';
-const supabaseKey = 'sb_publishable_WThfxNW0WuJww3EMOOljXA_aro1-pB4';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  // KUNCI PERBAIKAN: Ganti nama variabel menjadi supabaseClient
+  const supabaseUrl = 'https://qhvfrcriptbyunmduizu.supabase.co';
+  const supabaseKey = 'sb_publishable_WThfxNW0WuJww3EMOOljXA_aro1-pB4';
+  const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
   let DATA_MASTER = { majelis: [], gereja: [], jabatan: [], jemaat: [], petugas: [], log: [] };
   let EDIT_MODE_ID = null;
@@ -88,125 +88,115 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
       if(!d || isNaN(d.getTime())) return "-"; return Math.abs(new Date(Date.now() - d.getTime()).getUTCFullYear() - 1970) + " Thn";
   }
 
-  // --- FUNGSI JEMBATAN API (TANGGUH & ANTI BADAI GOOGLE) ---
- async function apiCall(action, payload = {}) {
+  async function apiCall(action, payload = {}) {
     try {
         // --- SISTEM LOGIN & ADMIN ---
         if (action === 'checkLogin') {
-            const { data, error } = await supabase.from('petugas').select('*').eq('username', payload.username).eq('password_hash', payload.password).single();
+            const { data, error } = await supabaseClient.from('petugas').select('*').eq('username', payload.username).eq('password_hash', payload.password).single();
             if (error || !data) return { status: 'fail' };
             return { status: 'success', nama: data.nama_lengkap, role: data.role, username: data.username };
         }
         if (action === 'getListPetugas') {
-            const { data, error } = await supabase.from('petugas').select('*');
+            const { data, error } = await supabaseClient.from('petugas').select('*');
             if (error) throw error; return data.map(p => ({ Nama: p.nama_lengkap, Username: p.username, Role: p.role }));
+        }
+        if (action === 'simpanPetugas') {
+            const { error } = await supabaseClient.from('petugas').insert([{ id_petugas: "P" + Date.now(), nama_lengkap: payload.nama, username: payload.username, password_hash: payload.password, role: payload.role, status: 'Aktif' }]);
+            if (error) throw error; return { status: 'success', message: 'Petugas berhasil ditambahkan.' };
+        }
+        if (action === 'hapusPetugas') {
+            const { error } = await supabaseClient.from('petugas').delete().eq('username', payload.username);
+            if (error) throw error; return { status: 'success' };
         }
 
         // --- MAJELIS ---
         if (action === 'simpanMajelis') {
-            const { error } = await supabase.from('majelis').insert([{ id_majelis: "M" + Date.now().toString().slice(-6), nama_lengkap: payload.Nama_Lengkap, jabatan: payload.Jabatan, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah, no_hp: payload.No_HP }]);
+            const { error } = await supabaseClient.from('majelis').insert([{ id_majelis: "M" + Date.now().toString().slice(-6), nama_lengkap: payload.Nama_Lengkap, jabatan: payload.Jabatan, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah, no_hp: payload.No_HP }]);
             if (error) throw error; return { status: 'success' };
         }
         if (action === 'updateMajelis') {
-            const { error } = await supabase.from('majelis').update({ nama_lengkap: payload.Nama_Lengkap, jabatan: payload.Jabatan, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah, no_hp: payload.No_HP }).eq('id_majelis', payload.ID_Majelis);
+            const { error } = await supabaseClient.from('majelis').update({ nama_lengkap: payload.Nama_Lengkap, jabatan: payload.Jabatan, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah, no_hp: payload.No_HP }).eq('id_majelis', payload.ID_Majelis);
             if (error) throw error; return { status: 'success' };
         }
         if (action === 'mutasiPersonil') {
-            const { error } = await supabase.from('majelis').update({ nama_gereja: payload.Nama_Gereja_Baru, resort: payload.Resort_Baru, wilayah: payload.Wilayah_Baru }).eq('id_majelis', payload.ID_Majelis);
+            const { error } = await supabaseClient.from('majelis').update({ nama_gereja: payload.Nama_Gereja_Baru, resort: payload.Resort_Baru, wilayah: payload.Wilayah_Baru }).eq('id_majelis', payload.ID_Majelis);
             if (error) throw error; return { status: 'success', message: 'Personil dimutasi' };
         }
         if (action === 'hapusMajelis') {
-            const { error } = await supabase.from('majelis').delete().eq('id_majelis', payload.id);
+            const { error } = await supabaseClient.from('majelis').delete().eq('id_majelis', payload.id);
             if (error) throw error; return { status: 'success' };
         }
         if (action === 'importMajelisMassal') {
             const arr = payload.excelData.map(m => ({ id_majelis: "M" + Math.floor(Math.random()*1000000), nama_lengkap: m.Nama_Lengkap, jabatan: m.Jabatan, nama_gereja: m.Nama_Gereja, resort: m.Resort, wilayah: m.Wilayah, no_hp: m.No_HP }));
-            const { error } = await supabase.from('majelis').insert(arr);
+            const { error } = await supabaseClient.from('majelis').insert(arr);
             if (error) throw error; return { status: 'success', added: arr.length };
         }
 
         // --- JEMAAT ---
         if (action === 'simpanJemaat') {
-            const { error } = await supabase.from('jemaat').insert([{ id_jemaat: "J" + Date.now(), no_kk: payload.No_KK, nama_lengkap: payload.Nama_Lengkap, status_keluarga: payload.Status_Keluarga, jenis_kelamin: payload.Jenis_Kelamin, tanggal_lahir: payload.Tanggal_Lahir, pekerjaan: payload.Pekerjaan, kondisi: payload.Kondisi, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah }]);
+            const { error } = await supabaseClient.from('jemaat').insert([{ id_jemaat: "J" + Date.now(), no_kk: payload.No_KK, nama_lengkap: payload.Nama_Lengkap, status_keluarga: payload.Status_Keluarga, jenis_kelamin: payload.Jenis_Kelamin, tanggal_lahir: payload.Tanggal_Lahir, pekerjaan: payload.Pekerjaan, kondisi: payload.Kondisi, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah }]);
             if (error) throw error; return { status: 'success' };
         }
         if (action === 'updateJemaat') {
-            const { error } = await supabase.from('jemaat').update({ no_kk: payload.No_KK, nama_lengkap: payload.Nama_Lengkap, status_keluarga: payload.Status_Keluarga, jenis_kelamin: payload.Jenis_Kelamin, tanggal_lahir: payload.Tanggal_Lahir, pekerjaan: payload.Pekerjaan, kondisi: payload.Kondisi, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah }).eq('id_jemaat', payload.ID_Jemaat);
+            const { error } = await supabaseClient.from('jemaat').update({ no_kk: payload.No_KK, nama_lengkap: payload.Nama_Lengkap, status_keluarga: payload.Status_Keluarga, jenis_kelamin: payload.Jenis_Kelamin, tanggal_lahir: payload.Tanggal_Lahir, pekerjaan: payload.Pekerjaan, kondisi: payload.Kondisi, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah }).eq('id_jemaat', payload.ID_Jemaat);
             if (error) throw error; return { status: 'success' };
-        }
-      // --- IMPORT JEMAAT MASSAL ---
-        if (action === 'importJemaatMassal') {
-            const arr = payload.excelData.map(j => ({ id_jemaat: "J" + Math.floor(Math.random()*1000000), no_kk: j.No_KK, nama_lengkap: j.Nama_Lengkap, status_keluarga: j.Status_Keluarga, jenis_kelamin: j.Jenis_Kelamin, tanggal_lahir: j.Tanggal_Lahir, pekerjaan: j.Pekerjaan, kondisi: j.Kondisi, nama_gereja: j.Nama_Gereja, resort: j.Resort, wilayah: j.Wilayah }));
-            const { error } = await supabase.from('jemaat').insert(arr);
-            if (error) throw error; return { status: 'success', added: arr.length };
-        }
-
-        // --- MANAJEMEN PETUGAS / ADMIN ---
-        if (action === 'simpanPetugas') {
-            const { error } = await supabase.from('petugas').insert([{ id_petugas: "P" + Date.now(), nama_lengkap: payload.nama, username: payload.username, password_hash: payload.password, role: payload.role, status: 'Aktif' }]);
-            if (error) throw error; return { status: 'success', message: 'Petugas berhasil ditambahkan.' };
-        }
-        if (action === 'hapusPetugas') {
-            const { error } = await supabase.from('petugas').delete().eq('username', payload.username);
-            if (error) throw error; return { status: 'success' };
-        }
-
-        // --- BERSIHKAN LOG AKTIVITAS ---
-        if (action === 'bersihkanLog') {
-            const { error } = await supabase.from('log_aktivitas').delete().not('aksi', 'is', null);
-            if (error) throw error; return { status: 'success' };
-        }
-
-        // --- E-ARSIP (TARIK DATA DOKUMEN) ---
-        if (action === 'getArsipDatabase') {
-            const { data, error } = await supabase.from('e_arsip').select('*');
-            if (error) throw error; 
-            const mapArsip = data.map(a => ({ id: a.id_arsip, url: a.url_berkas, judul: a.nama_dokumen, kategori: a.kategori, resort: a.diunggah_oleh, unit_gereja: a.diunggah_oleh, keterangan: a.nama_dokumen, tgl: a.tanggal_dokumen }));
-            return { status: 'success', data: mapArsip };
         }
         if (action === 'hapusJemaat') {
-            const { error } = await supabase.from('jemaat').delete().eq('id_jemaat', payload.id);
+            const { error } = await supabaseClient.from('jemaat').delete().eq('id_jemaat', payload.id);
             if (error) throw error; return { status: 'success' };
         }
         if (action === 'hapusKeluarga') {
-            const { error } = await supabase.from('jemaat').delete().eq('no_kk', payload.no_kk);
+            const { error } = await supabaseClient.from('jemaat').delete().eq('no_kk', payload.no_kk);
             if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'importJemaatMassal') {
+            const arr = payload.excelData.map(j => ({ id_jemaat: "J" + Math.floor(Math.random()*1000000), no_kk: j.No_KK, nama_lengkap: j.Nama_Lengkap, status_keluarga: j.Status_Keluarga, jenis_kelamin: j.Jenis_Kelamin, tanggal_lahir: j.Tanggal_Lahir, pekerjaan: j.Pekerjaan, kondisi: j.Kondisi, nama_gereja: j.Nama_Gereja, resort: j.Resort, wilayah: j.Wilayah }));
+            const { error } = await supabaseClient.from('jemaat').insert(arr);
+            if (error) throw error; return { status: 'success', added: arr.length };
         }
 
         // --- KORWIL ---
         if (action === 'simpanKorwil') {
-            const { error } = await supabase.from('korwil').insert([{ id_korwil: "W" + payload.Wilayah + Date.now().toString().slice(-4), nama_korwil: payload.Nama_Korwil, wilayah: payload.Wilayah, no_hp: payload.No_HP, status: payload.Status, keterangan: payload.Keterangan }]);
+            const { error } = await supabaseClient.from('korwil').insert([{ id_korwil: "W" + payload.Wilayah + Date.now().toString().slice(-4), nama_korwil: payload.Nama_Korwil, wilayah: payload.Wilayah, no_hp: payload.No_HP, status: payload.Status, keterangan: payload.Keterangan }]);
             if (error) throw error; return { status: 'success' };
         }
         if (action === 'updateKorwil') {
-            const { error } = await supabase.from('korwil').update({ nama_korwil: payload.Nama_Korwil, wilayah: payload.Wilayah, no_hp: payload.No_HP, status: payload.Status, keterangan: payload.Keterangan }).eq('id_korwil', payload.ID_Korwil);
+            const { error } = await supabaseClient.from('korwil').update({ nama_korwil: payload.Nama_Korwil, wilayah: payload.Wilayah, no_hp: payload.No_HP, status: payload.Status, keterangan: payload.Keterangan }).eq('id_korwil', payload.ID_Korwil);
             if (error) throw error; return { status: 'success' };
         }
         if (action === 'hapusKorwil') {
-            const { error } = await supabase.from('korwil').delete().eq('id_korwil', payload.id);
+            const { error } = await supabaseClient.from('korwil').delete().eq('id_korwil', payload.id);
             if (error) throw error; return { status: 'success' };
         }
 
         // --- GEREJA ---
         if (action === 'updateDataGereja') {
-            const { error } = await supabase.from('gereja').update({
+            const { error } = await supabaseClient.from('gereja').update({
                 nama_gereja: payload.obj.Nama_Gereja_Baru, status_gereja: payload.obj.Status_Gereja, induk_resort: payload.obj.Induk_Resort, total_rt: payload.obj.Total_RT, total_jiwa: payload.obj.Total_Jiwa, latitude: payload.obj.Latitude, longitude: payload.obj.Longitude, no_register: payload.obj.No_Register, tanggal_berdiri: payload.obj.Tanggal_Berdiri
             }).eq('nama_gereja', payload.obj.Nama_Gereja_Lama);
             if (error) throw error;
             if (payload.obj.Nama_Gereja_Lama !== payload.obj.Nama_Gereja_Baru) {
-                await supabase.from('majelis').update({nama_gereja: payload.obj.Nama_Gereja_Baru}).eq('nama_gereja', payload.obj.Nama_Gereja_Lama);
-                await supabase.from('jemaat').update({nama_gereja: payload.obj.Nama_Gereja_Baru}).eq('nama_gereja', payload.obj.Nama_Gereja_Lama);
+                await supabaseClient.from('majelis').update({nama_gereja: payload.obj.Nama_Gereja_Baru}).eq('nama_gereja', payload.obj.Nama_Gereja_Lama);
+                await supabaseClient.from('jemaat').update({nama_gereja: payload.obj.Nama_Gereja_Baru}).eq('nama_gereja', payload.obj.Nama_Gereja_Lama);
             }
             return { status: 'success' };
         }
 
-        // --- LOG AKTIVITAS ---
+        // --- LOG AKTIVITAS & ARSIP ---
         if (action === 'catatLogEvent') {
-            await supabase.from('log_aktivitas').insert([{ username: USER_NOW ? USER_NOW.nama : 'Sistem', role: USER_NOW ? USER_NOW.role : '', aksi: payload.aksi, detail: payload.detail }]);
+            await supabaseClient.from('log_aktivitas').insert([{ username: USER_NOW ? USER_NOW.nama : 'Sistem', role: USER_NOW ? USER_NOW.role : '', aksi: payload.aksi, detail: payload.detail }]);
             return { status: 'success' };
         }
-
-      
+        if (action === 'bersihkanLog') {
+            const { error } = await supabaseClient.from('log_aktivitas').delete().not('aksi', 'is', null);
+            if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'getArsipDatabase') {
+            const { data, error } = await supabaseClient.from('e_arsip').select('*');
+            if (error) throw error; 
+            const mapArsip = data.map(a => ({ id: a.id_arsip, url: a.url_berkas, judul: a.nama_dokumen, kategori: a.kategori, resort: a.diunggah_oleh, unit_gereja: a.diunggah_oleh, keterangan: a.nama_dokumen, tgl: a.tanggal_dokumen }));
+            return { status: 'success', data: mapArsip };
+        }
 
         return { status: 'success', message: 'Tindakan selesai' };
     } catch (error) {
@@ -214,6 +204,7 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         throw new Error(error.message || "Gagal memproses data.");
     }
 }
+
   function toggleDarkMode() { document.documentElement.classList.toggle('dark'); localStorage.setItem('gkpi_dark_mode', document.documentElement.classList.contains('dark')); updateDarkModeIcon(); }
   function updateDarkModeIcon() { const btn = document.getElementById('btnDarkMode'); const icon = btn.querySelector('i'); if(document.documentElement.classList.contains('dark')) { icon.className = 'fas fa-sun text-amber-400'; } else { icon.className = 'fas fa-moon'; } }
 
@@ -315,18 +306,17 @@ muatLibraryBerat(() => { loadData(); });
   }
 async function tarikDariServer(tutupLoadingScreen) {
     try {
-        // Menarik 5 Tabel Utama secara Paralel (Meningkatkan Kecepatan Load)
+        // Ganti supabase.from menjadi supabaseClient.from
         const [rGereja, rMajelis, rJemaat, rKorwil, rLog] = await Promise.all([
-            supabase.from('gereja').select('*'),
-            supabase.from('majelis').select('*'),
-            supabase.from('jemaat').select('*'),
-            supabase.from('korwil').select('*'),
-            supabase.from('log_aktivitas').select('*').order('waktu', { ascending: false }).limit(200)
+            supabaseClient.from('gereja').select('*'),
+            supabaseClient.from('majelis').select('*'),
+            supabaseClient.from('jemaat').select('*'),
+            supabaseClient.from('korwil').select('*'),
+            supabaseClient.from('log_aktivitas').select('*').order('waktu', { ascending: false }).limit(200)
         ]);
 
         if (rGereja.error) throw rGereja.error;
 
-        // Jembatan Penerjemah: Mengubah format Supabase ke format Kapital aplikasi Anda
         DATA_MASTER = {
             gereja: rGereja.data.map(g => ({ Id_Gereja: g.id_gereja, Wilayah: g.wilayah, Induk_Resort: g.induk_resort, Resort: g.induk_resort, Nama_Gereja: g.nama_gereja, Status_Gereja: g.status_gereja, Tipe_Gereja: g.status_gereja, Total_RT: g.total_rt, Total_Jiwa: g.total_jiwa, Latitude: g.latitude, Longitude: g.longitude, No_Register: g.no_register, Tanggal_Berdiri: g.tanggal_berdiri })),
             majelis: rMajelis.data.map(m => ({ ID_Majelis: m.id_majelis, Nama_Lengkap: m.nama_lengkap, Jabatan: m.jabatan, Nama_Gereja: m.nama_gereja, Resort: m.resort, Wilayah: m.wilayah, No_HP: m.no_hp })),
