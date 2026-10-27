@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <title>GKPI Data Hub</title>
+  
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+
+  <!-- LETAKKAN DI SINI: Tepat di baris awal agar browser langsung melihatnya -->
+  <link rel="preload" as="image" href="bg-login.webp" fetchpriority="high">
+<!-- GANTI PEMANGGILAN GOOGLE FONTS MENJADI SEPERTI INI -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"></noscript>
+
+  <!-- Asinkron CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'" />
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+</head>
+<body class="antialiased bg-slate-50 overflow-hidden">
+
+  <!-- MENU LOGIN (SPLIT SCREEN MODERN COMPACT) -->
+<div id="loginPage" class="fixed inset-0 w-full h-full overflow-y-auto bg-gradient-to-br from-[#e2e8f0] via-[#f8fafc] to-[#c7d2fe] z-50 custom-scrollbar">
+  
+  <!-- WADAH FLEKSIBEL (Agar Card di tengah, Copyright di bawah, dan bisa di-scroll di HP) -->
+  <div class="min-h-full flex flex-col items-center justify-center p-4 md:p-8">
+    
+    <!-- KARTU UTAMA -->
+    <div class="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl flex flex-col md:flex-row overflow-hidden animate-zoom min-h-[480px] md:min-h-[520px] relative z-10 shrink-0 mt-4 md:mt-8 mb-8">
+      
+      <!-- SISI KIRI: GAMBAR -->
+      <div class="w-full md:w-5/12 h-48 md:h-auto relative shrink-0 border-r border-slate-100">
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://i.pinimg.com/736x/b2/41/66/b2416600ead8c119222577d1f913e423.jpg');"></div>
+        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-900/60 to-blue-600/20 mix-blend-multiply"></div>
+        
+        <div class="absolute bottom-8 left-8 text-white hidden md:block">
+          <h3 class="text-2xl font-black mb-1.5 tracking-tight drop-shadow-md">GKPI Data Hub</h3>
+          <p class="text-xs text-indigo-100 font-medium leading-relaxed drop-shadow">Sistem Informasi Majelis Pusat<br>Gereja Kristen Protestan Indonesia</p>
+        </div>
+      </div>
+
+      <!-- SISI KANAN: FORM LOGIN -->
+      <div class="w-full md:w-7/12 p-6 md:p-8 lg:p-10 flex flex-col justify-center bg-white">
+        
+        <!-- Logo & Judul -->
+        <div class="flex items-center gap-3 mb-6">
+          <img src="Logo.png" alt="Logo GKPI" fetchpriority="high" decoding="async" class="w-8 h-8 object-contain drop-shadow-sm">
+          <h2 class="text-xl font-black text-indigo-600 tracking-tight">Database Pusat GKPI</h2>
+        </div>
+
+        <h3 class="text-xl font-bold text-slate-800 mb-5">Sign in</h3>
+
+        <div class="space-y-4">
+          <div class="group">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1 transition-colors group-focus-within:text-indigo-600">Username / ID</label>
+            <input type="text" id="user" onkeypress="if(event.key === 'Enter') handleLogin(event)" class="w-full pb-1.5 border-b-2 border-slate-200 bg-transparent text-sm font-bold text-slate-800 outline-none focus:border-indigo-600 transition-colors placeholder:font-normal placeholder:text-slate-300" placeholder="Ketik username Anda...">
+          </div>
+          
+          <div class="group">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1 transition-colors group-focus-within:text-indigo-600">Password</label>
+            <input type="password" id="pass" onkeypress="if(event.key === 'Enter') handleLogin(event)" class="w-full pb-1.5 border-b-2 border-slate-200 bg-transparent text-sm font-bold text-slate-800 outline-none focus:border-indigo-600 transition-colors placeholder:font-normal placeholder:text-slate-300" placeholder="••••••••••••">
+          </div>
+
+          <div class="flex justify-between items-center text-[11px] font-bold text-slate-500 pt-1">
+             <label class="flex items-center gap-2 cursor-pointer select-none hover:text-indigo-600 transition-colors"><input type="checkbox" class="accent-indigo-600 w-3.5 h-3.5 rounded cursor-pointer"> Remember me</label>
+             <a href="#" onclick="Swal.fire('Hubungi Admin', 'Silakan hubungi Admin Infokom untuk mereset password Anda.', 'info')" class="text-indigo-600 hover:text-indigo-800 transition-colors"><i class="fas fa-lock text-[10px] mr-1"></i> Forgot password?</a>
+          </div>
+
+          <div class="flex items-center justify-between pt-3">
+              <span class="text-[11px] font-bold text-slate-400">Secure Access</span>
+              <button type="button" onclick="handleLogin(event)" id="btnLogin" class="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-7 py-3 rounded-xl font-bold text-sm shadow-md hover:shadow-xl active:scale-95 transition-all flex items-center gap-2 z-50 relative">
+                Sign in <i class="fas fa-arrow-right text-[10px] pointer-events-none"></i>
+              </button>
+          </div>
+        </div>
+
+        <!-- TAUTAN PINTASAN BAWAH -->
+        <div class="mt-8 pt-5 border-t border-slate-100">
+          <p class="text-[9px] text-center font-bold text-slate-400 uppercase tracking-widest mb-3">Akses Pintu Lainnya</p>
+          <div class="grid grid-cols-2 gap-2.5">
+             <a href="portal-resort.html" target="_blank" rel="noopener noreferrer" class="flex flex-col md:flex-row items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-700 transition-all text-center group shadow-sm hover:shadow relative z-50">
+               <i class="fas fa-church text-indigo-400 text-sm group-hover:scale-110 transition-transform"></i>
+               <span class="text-[9px] md:text-[10px] font-bold">Dashboard Resort</span>
+             </a>
+             <a href="form-daerah.html" target="_blank" rel="noopener noreferrer" class="flex flex-col md:flex-row items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 transition-all text-center group shadow-sm hover:shadow relative z-50">
+               <i class="fas fa-edit text-emerald-400 text-sm group-hover:scale-110 transition-transform"></i>
+               <span class="text-[9px] md:text-[10px] font-bold">Portal Input Data</span>
+             </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COPYRIGHT FOOTER -->
+    <div class="mt-auto pb-4 text-center text-slate-500 text-[10px] font-bold tracking-widest uppercase relative z-10 drop-shadow-sm shrink-0">
+        © 2026 Copyright by <span class="text-indigo-600 font-black">Diovery</span>. All Rights Reserved.
+    </div>
+
+  </div>
+</div>
+  
+<!-- ================= WIDGET LIVE CHAT AI ================= -->
+    <div id="chatWidgetContainer" class="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50 flex flex-col items-end">
+      
+    <!-- KOTAK OBROLAN (Jadikan absolute dan pointer-events-none saat tertutup) -->
+      <div id="chatBox" class="absolute bottom-20 right-0 pointer-events-none bg-white w-[320px] md:w-[350px] rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col transition-all duration-300 transform scale-0 origin-bottom-right opacity-0 h-[450px] z-50">
+        
+          <!-- Header Chat -->
+          <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-4 flex items-center justify-between text-white shrink-0 shadow-md relative z-10">
+              <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center relative">
+                      <i class="fas fa-robot text-xl drop-shadow-sm"></i>
+                      <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-emerald-600 rounded-full shadow-sm"></div>
+                  </div>
+                  <div>
+                      <h4 class="font-black text-sm leading-tight drop-shadow-sm">CS Infokom</h4>
+                      <p class="text-[9px] font-bold text-emerald-100 uppercase tracking-widest mt-0.5">Asisten AI Aktif</p>
+                  </div>
+              </div>
+              <button onclick="toggleChatBox()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/90 hover:bg-white/20 hover:text-white transition-all"><i class="fas fa-times text-sm"></i></button>
+          </div>
+
+          <!-- Area Pesan -->
+          <div id="chatMessages" class="flex-1 p-5 overflow-y-auto bg-slate-50 flex flex-col gap-4 custom-scrollbar text-sm font-medium text-slate-700 relative">
+              <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 z-0 pointer-events-none"></div>
+              
+              <!-- Pesan Pembuka dari Bot -->
+              <div class="flex gap-2.5 items-end w-[85%] relative z-10">
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200"><i class="fas fa-robot text-[10px]"></i></div>
+                  <div class="bg-white p-3.5 rounded-2xl rounded-bl-sm shadow-sm border border-slate-200 text-[13px] leading-relaxed">
+                      Halo! 👋 Saya Asisten AI Infokom. Ada yang bisa saya bantu terkait akses GKPI Data Hub?
+                  </div>
+              </div>
+          </div>
+
+          <!-- Input Pesan -->
+          <div class="p-3.5 bg-white border-t border-slate-100 flex items-center gap-2.5 shrink-0 z-10 relative shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
+              <input type="text" id="chatInput" onkeypress="if(event.key === 'Enter') kirimPesanChat()" placeholder="Ketik pesan di sini..." class="flex-1 bg-slate-50 h-11 px-4 rounded-full border border-slate-200 text-sm font-semibold outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all text-slate-700 placeholder:font-medium">
+              <button onclick="kirimPesanChat()" class="w-11 h-11 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-emerald-200 shrink-0"><i class="fas fa-paper-plane text-sm ml-[-2px]"></i></button>
+          </div>
+      </div>
+
+      <!-- TOMBOL MENGAMBANG (Pemicu) -->
+      <button onclick="toggleChatBox()" id="chatTriggerBtn" class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white text-3xl shadow-xl shadow-emerald-500/30 hover:scale-110 hover:shadow-emerald-500/50 transition-all duration-300 relative group">
+          <div class="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-40"></div>
+          <i class="fas fa-comments relative z-10 text-2xl md:text-3xl drop-shadow-md transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110"></i>
+      </button>
+      
+    </div>
+    <!-- ================= SAMPAI SINI ================= -->
+<!-- GANTI MULAI DARI SINI (<div id="mainApp"...>) SAMPAI PENUTUP </header> -->
+<div id="mainApp" class="hidden h-screen flex bg-[#f4f7fb] overflow-hidden relative selection:bg-indigo-100 selection:text-indigo-900">
+  
+  <!-- OVERLAY GELAP UNTUK MOBILE -->
+  <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+
+  <!-- SIDEBAR NAVIGASI (MEWAH & AUTO-HIDE) -->
+  <aside id="sidebar" class="fixed md:relative z-50 w-[280px] shrink-0 h-full bg-white/95 backdrop-blur-2xl border-r border-slate-200/70 flex flex-col transition-all duration-500 ease-in-out transform -translate-x-full md:translate-x-0 shadow-[8px_0_30px_rgba(0,0,0,0.03)]">
+    <div class="p-6 flex items-center gap-4 border-b border-slate-100/80 bg-gradient-to-b from-slate-50/50 to-transparent">
+    <img src="Logo.png" alt="Logo GKPI" fetchpriority="high" decoding="async" class="w-12 h-12 object-contain drop-shadow-md">
+      <div><h1 class="font-black text-xl text-slate-800 leading-none tracking-tight">SINODE GKPI</h1><span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded-full mt-1 inline-block">Database Hub</span></div>
+    </div>
+    
+    <nav class="flex-1 px-4 py-6 overflow-y-auto flex flex-col gap-1.5 custom-scrollbar">
+      <div class="flex flex-col gap-1.5 mb-6">
+        <button onclick="switchTab('home')" id="btnHome" class="nav-active flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-slate-500 font-semibold text-sm sidebar-link-hover w-full group"><i class="fas fa-layer-group w-5 text-center group-hover:text-indigo-500 transition-colors"></i> Dashboard Pusat</button>
+        <button onclick="switchTab('jemaat')" id="btnJemaat" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-slate-500 font-semibold text-sm sidebar-link-hover w-full group"><i class="fas fa-users-cog w-5 text-center group-hover:text-emerald-500 transition-colors"></i> Data Jemaat</button>
+        <button onclick="switchTab('search')" id="btnSearch" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-slate-500 font-semibold text-sm sidebar-link-hover w-full group"><i class="fas fa-sitemap w-5 text-center group-hover:text-indigo-500 transition-colors"></i> Data Internal</button>
+        <button onclick="switchTab('log')" id="btnLog" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-slate-500 font-semibold text-sm sidebar-link-hover w-full group"><i class="fas fa-history w-5 text-center group-hover:text-amber-500 transition-colors"></i> Log Aktivitas</button>
+        <button onclick="switchTab('checklist')" id="btnChecklist" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-slate-500 font-semibold text-sm sidebar-link-hover w-full group"><i class="fas fa-tasks w-5 text-center group-hover:text-emerald-500 transition-colors"></i> Check List Input</button>
+        <!-- TOMBOL MENU E-ARSIP -->
+        <button onclick="switchTab('arsip')" id="btnArsip" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-slate-500 font-semibold text-sm sidebar-link-hover w-full group"><i class="fas fa-folder-open w-5 text-center group-hover:text-amber-500 transition-colors"></i> E-Arsip Dokumen</button>
+
+        <!-- TOMBOL MENU BRANKAS ASET (BARU) -->
+        <button onclick="bukaBrankasAset()" id="btnBrankas" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-slate-800 font-black text-sm sidebar-link-hover w-full group bg-gradient-to-r from-amber-100 to-transparent border-l-4 border-amber-500">
+            <i class="fas fa-vault w-5 text-center text-amber-600 group-hover:scale-110 transition-transform"></i> Brankas Aset
+        </button> 
+      
+      </div>
+      
+      <div class="px-4 py-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 relative"><span class="bg-white pr-2 relative z-10">Tautan Aplikasi</span><div class="absolute left-0 top-1/2 w-full h-[1px] bg-slate-100 z-0"></div></div>
+      <a href="https://script.google.com/macros/s/AKfycbx-uXm8JEdQWS_kO_bSRbzn_4WGb3uJzqMKqnc3Xp_8PWq4pNenEH8VWWdhI_LN3eh2VQ/exec?p=admin" target="_blank" class="flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-500 font-medium text-xs sidebar-link-hover w-full group"><i class="fas fa-fingerprint w-5 text-center text-slate-300 group-hover:text-emerald-500 transition-colors"></i> Absensi Pegawai</a>
+      <a href="https://script.google.com/macros/s/AKfycbwY39bLZn449hv9qdsAhGSoBOwuX3c42W8sINm7zqYi8ixS_DY3MJsYvH3ZahR0q5eE/exec" target="_blank" class="flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-500 font-medium text-xs sidebar-link-hover w-full group"><i class="fas fa-user-tie w-5 text-center text-slate-300 group-hover:text-blue-500 transition-colors"></i> Database Pendeta</a>
+      <a href="https://script.google.com/macros/s/AKfycbwiI5UpSuOMctYhEHSFZM1a9gaslLbeP9QBbCUehdQisZXNhOWeNo97mtgVlROvTxG8BQ/exec" target="_blank" class="flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-500 font-medium text-xs sidebar-link-hover w-full group"><i class="fas fa-folder-open w-5 text-center text-slate-300 group-hover:text-amber-500 transition-colors"></i> E-Arsip GKPI</a>
+      <!-- TOMBOL TENTANG APLIKASI -->
+      <div class="px-4 py-2 mt-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 relative"><span class="bg-white dark:bg-slate-900 pr-2 relative z-10">Sistem Info</span><div class="absolute left-0 top-1/2 w-full h-[1px] bg-slate-100 dark:bg-slate-800 z-0"></div></div>
+      <button onclick="bukaAboutApp()" class="flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-500 font-medium text-xs sidebar-link-hover w-full group transition-colors">
+          <i class="fas fa-info-circle w-5 text-center text-slate-300 group-hover:text-indigo-500 transition-colors"></i> Tentang Aplikasi
+      </button>
+      <div class="mt-4 pt-4 border-t border-slate-100 hidden md:block" id="adminDivider"></div>
+      
+      <button onclick="switchTab('admin')" id="btnAdmin" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-500 font-semibold text-xs transition-all hover:bg-rose-50 hover:text-rose-600 hidden group"><i class="fas fa-shield-alt w-5 text-center group-hover:text-rose-500"></i> Akses Admin</button>
+    </nav>
+    
+    <div class="p-5 mt-auto border-t border-slate-100/80 bg-slate-50/30">
+      <div class="bg-white rounded-2xl p-3.5 mb-3 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-blue-500 text-white flex items-center justify-center font-bold shadow-md shadow-indigo-200"><i class="fas fa-user"></i></div>
+        <div class="overflow-hidden flex-1"><p class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">Petugas Aktif</p><p id="userNameLabel" class="font-bold text-slate-700 text-xs truncate">-</p></div>
+      </div>
+      <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 py-3 bg-white border border-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm hover:shadow-rose-200"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+    </div>
+  </aside>
+
+<!-- KONTEN UTAMA -->
+  <main id="mainContent" class="flex-1 flex flex-col h-full overflow-hidden relative transition-all w-full bg-[#f4f7fb]">
+    
+    <!-- 1. HEADER (Menu Atas) -->
+    <header class="glass-header sticky top-0 z-30 px-6 md:px-8 py-4 flex justify-between items-center shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+      <div class="flex items-center gap-4">
+        <!-- TOMBOL HAMBURGER HIDE/SHOW -->
+        <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm active:scale-95 focus:ring-2 focus:ring-indigo-500/50">
+          <i class="fas fa-bars text-sm"></i>
+        </button>
+        <h2 id="pageTitle" class="text-xl md:text-2xl font-black text-slate-800 capitalize tracking-tight drop-shadow-sm">Dashboard Pusat</h2>
+      </div>
+      
+      <div class="flex items-center gap-2 md:gap-3">
+        <button onclick="toggleDarkMode()" id="btnDarkMode" class="bg-white text-slate-600 border border-slate-200 px-3 md:px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center w-10 md:w-auto"><i class="fas fa-moon"></i></button>
+        <button onclick="loadData(true)" class="bg-emerald-50 text-emerald-600 px-3 md:px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2 uppercase tracking-wide border border-emerald-100/50"><i class="fas fa-sync-alt"></i> <span class="hidden md:inline">Refresh</span></button>
+        <button id="btnTopTambah" onclick="openModalSmart()" class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 md:px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2 uppercase tracking-wide"><i class="fas fa-plus"></i> <span class="hidden lg:inline">Tambah Data</span><span class="lg:hidden">Tambah</span></button>
+        <button onclick="openPdfPreview()" class="bg-rose-50 text-rose-600 px-3 md:px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm hover:bg-rose-500 hover:text-white transition-all flex items-center gap-2 uppercase tracking-wide border border-rose-100/50"><i class="fas fa-file-pdf"></i> <span class="hidden lg:inline">Cetak PDF</span></button>
+        <button onclick="handleLogout()" class="bg-slate-50 text-slate-600 px-3 md:px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm hover:bg-slate-200 hover:text-slate-800 transition-all flex items-center gap-2 uppercase tracking-wide border border-slate-200"><i class="fas fa-power-off"></i> <span class="hidden md:inline">Keluar</span></button>
+      </div>
+    </header>
+    <!-- PENUTUP HEADER -->
+
+    <!-- ========================================================= -->
+    <!-- 2. AREA SCROLL KONTEN (LETAKKAN DI SINI, DI BAWAH HEADER) -->
+    <!-- ========================================================= -->
+<div class="flex-1 overflow-y-auto overscroll-contain flex flex-col relative z-0 custom-scrollbar" id="scrollableArea">
+      <div class="p-6 md:p-10 flex-1">
+        
+        <!-- HALAMAN DASHBOARD -->
+        <div id="pageHome" class="space-y-6 animate-fade">
+          
+          <!-- BANNER SELAMAT DATANG (HERO SECTION) -->
+          <div class="relative w-full rounded-[2rem] overflow-hidden shadow-lg mb-6 flex items-center justify-center min-h-[220px] md:min-h-[260px] group">
+            <!-- Background Foto Hitam Putih -->
+            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://lh3.googleusercontent.com/d/1gfQScz4lmHm1BepM0Rd7ElQN7X9SLLon'); filter: grayscale(100%) contrast(120%);"></div>
+            <!-- Overlay Gelap (Agar Teks Putih Terbaca Jelas) -->
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/85 to-slate-900/80 backdrop-blur-[2px]"></div>
+            
+            <!-- Konten Teks -->
+            <div class="relative z-10 text-center px-6 py-8 animate-zoom">
+             <img src="Logo.png" alt="Logo GKPI" decoding="async" class="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 drop-shadow-2xl">
+              <h1 class="text-2xl md:text-4xl font-black text-white tracking-tight drop-shadow-md">Selamat Datang di Database GKPI Hub</h1>
+              <p class="text-indigo-100 text-sm md:text-base mt-2 font-medium tracking-wide">Sistem Informasi Terpadu Majelis & Unit Gereja</p>
+            </div>
+          </div>
+<!-- PROGRESS PENGUMPULAN DATA -->
+          <div class="bg-white/80 backdrop-blur-xl p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-6 relative overflow-hidden">
+             <!-- Ornamen Latar -->
+             <div class="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-blue-500/10 rounded-full blur-2xl"></div>
+             
+             <div class="flex justify-between items-end mb-4 md:mb-5 relative z-10">
+                 <div>
+                     <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fas fa-chart-line text-indigo-500"></i> Input Data Storage</h3>
+                     <p class="text-[10px] text-slate-500 font-semibold mt-1 uppercase tracking-widest">Akumulasi Data Masuk seluruh jabatan, resort & jemaat khusus</p>
+                 </div>
+                 <div class="text-right">
+                     <span id="persentaseData" class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500 leading-none">0%</span>
+                 </div>
+             </div>
+             
+             <!-- Latar Bar Kosong -->
+             <div class="w-full bg-slate-100 rounded-full h-4 md:h-5 mb-3 overflow-hidden shadow-inner relative z-10 border border-slate-200/50">
+                 <!-- Bar Progress Berjalan -->
+                 <div id="barProgressData" class="bg-gradient-to-r from-indigo-500 via-blue-500 to-indigo-400 h-full rounded-full transition-all duration-1000 ease-out relative" style="width: 0%">
+                      <div class="absolute inset-0 bg-white/20 w-full h-full animate-pulse"></div>
+                 </div>
+             </div>
+             
+             <div class="flex justify-between text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest relative z-10">
+                 <span>Terkumpul: <span id="labelTerkumpul" class="text-indigo-600 font-black">0</span> Data</span>
+                 <span>Target Estimasi: <span id="labelTarget" class="text-slate-500 font-bold">10.000</span> Data</span>
+             </div>
+          </div>
+        
+         <!-- UBAH class grid INI dari xl:grid-cols-4 menjadi xl:grid-cols-5 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
+            <div class="bg-white rounded-3xl p-8 soft-shadow border border-slate-100 flex items-center justify-between relative overflow-hidden group"><div class="absolute -right-6 -bottom-6 text-slate-50 text-9xl group-hover:scale-110 transition-transform duration-500"><i class="fas fa-church"></i></div><div class="relative z-10"><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Unit Gereja</p><h4 id="statTotalGereja" class="text-4xl font-black text-slate-800">0</h4></div><div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-2xl relative z-10"><i class="fas fa-place-of-worship"></i></div></div>
+            <div class="bg-white rounded-3xl p-8 soft-shadow border border-slate-100 flex items-center justify-between relative overflow-hidden group"><div class="absolute -right-6 -bottom-6 text-slate-50 text-9xl group-hover:scale-110 transition-transform duration-500"><i class="fas fa-users"></i></div><div class="relative z-10"><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Personil Majelis</p><h4 id="statTotalMajelis" class="text-4xl font-black text-slate-800">0</h4></div><div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center text-2xl relative z-10"><i class="fas fa-id-badge"></i></div></div>
+            <div class="bg-white rounded-3xl p-8 soft-shadow border border-slate-100 flex items-center justify-between relative overflow-hidden group"><div class="absolute -right-6 -bottom-6 text-slate-50 text-9xl group-hover:scale-110 transition-transform duration-500"><i class="fas fa-home"></i></div><div class="relative z-10"><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Total RT</p><h4 id="statTotalRT" class="text-4xl font-black text-slate-800">0</h4></div><div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-2xl relative z-10"><i class="fas fa-users-cog"></i></div></div>
+            <div class="bg-white rounded-3xl p-8 soft-shadow border border-slate-100 flex items-center justify-between relative overflow-hidden group"><div class="absolute -right-6 -bottom-6 text-slate-50 text-9xl group-hover:scale-110 transition-transform duration-500"><i class="fas fa-user-friends"></i></div><div class="relative z-10"><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Total Jiwa</p><h4 id="statTotalJiwa" class="text-4xl font-black text-slate-800">0</h4></div><div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-2xl relative z-10"><i class="fas fa-user-friends"></i></div></div>
+            
+            <!-- KARTU TAMBAHAN UNTUK KORWIL -->
+            <div class="bg-white rounded-3xl p-8 soft-shadow border border-slate-100 flex items-center justify-between relative overflow-hidden group cursor-pointer" onclick="switchTab('search'); setTimeout(() => switchDataTab('korwil'), 100)">
+                <div class="absolute -right-6 -bottom-6 text-slate-50 text-9xl group-hover:scale-110 transition-transform duration-500"><i class="fas fa-map-marked-alt"></i></div>
+                <div class="relative z-10">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Total Korwil</p>
+                    <div class="flex items-end gap-2">
+                        <h4 id="statTotalKorwil" class="text-4xl font-black text-slate-800">0</h4>
+                        <p class="text-[10px] font-bold text-emerald-500 mb-1" id="statKorwilAktif">(0 Aktif)</p>
+                    </div>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-500 flex items-center justify-center text-2xl relative z-10">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+            </div>
+
+          </div>
+
+          <!-- FITUR CEK ULANG TAHUN GEREJA -->
+<div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm mt-6">
+    <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                <i class="fas fa-birthday-cake text-lg"></i>
+            </div>
+            <div>
+                <h4 class="text-base font-bold text-slate-800">Cek Ulang Tahun Gereja</h4>
+                <p class="text-xs text-slate-500">Cari gereja berdasarkan rentang tanggal berdiri</p>
+            </div>
+        </div>
+        <button onclick="resetUlangTahunGereja()" class="text-xs font-semibold text-slate-400 hover:text-rose-500 transition-colors">
+            <i class="fas fa-sync-alt mr-1"></i>Reset
+        </button>
+    </div>
+    
+    <div class="flex flex-col md:flex-row gap-4 mb-5">
+        <div class="flex-1">
+            <label class="text-xs font-semibold text-slate-600 mb-1.5 block">Mulai Tanggal</label>
+            <input type="date" id="ultahStart" class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-rose-500 outline-none">
+        </div>
+        <div class="flex-1">
+            <label class="text-xs font-semibold text-slate-600 mb-1.5 block">Sampai Tanggal</label>
+            <input type="date" id="ultahEnd" class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-rose-500 outline-none">
+        </div>
+        <div class="flex items-end">
+            <button onclick="cariUlangTahunGereja()" class="bg-rose-600 hover:bg-rose-700 text-white font-medium px-6 py-2.5 rounded-lg text-sm w-full md:w-auto transition-colors shadow-sm">
+                <i class="fas fa-search mr-2"></i>Cari
+            </button>
+        </div>
+    </div>
+
+    <!-- Kontainer Hasil Pencarian Ulang Tahun -->
+    <div id="ultahResultGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 max-h-96 overflow-y-auto p-1">
+        <div class="p-6 text-center text-slate-400 font-medium text-sm col-span-full border-2 border-dashed border-slate-200 rounded-2xl">
+            Pilih rentang tanggal untuk melihat gereja yang berulang tahun.
+        </div>
+    </div>
+</div>
+
+        <!-- ========================================== -->
+          <!-- 1. KOTAK PETA & LEGENDA WARNA -->
+          <!-- ========================================== -->
+          <div class="bg-white p-6 md:p-8 rounded-3xl soft-shadow border border-slate-100 mt-6">
+              <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2"><i class="fas fa-map-marked-alt text-indigo-500"></i> Pemetaan Lokasi Unit Gereja GKPI</h3>
+              
+              <div id="mapWilayah" class="w-full h-[400px] md:h-[450px] rounded-2xl border border-slate-200 shadow-inner z-0 relative mb-6"></div>
+              
+              <!-- KETERANGAN WARNA WILAYAH (LEGENDA) -->
+              <div class="pt-5 border-t border-slate-100">
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3.5"><i class="fas fa-palette mr-1 text-slate-300"></i> Indikator Warna Wilayah</p>
+                  <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#fb7185] border-2 border-[#e11d48] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 1</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#fb923c] border-2 border-[#ea580c] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 2</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#fbbf24] border-2 border-[#d97706] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 3</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#34d399] border-2 border-[#059669] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 4</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#2dd4bf] border-2 border-[#0d9488] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 5</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#22d3ee] border-2 border-[#0891b2] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 6</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#60a5fa] border-2 border-[#2563eb] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 7</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#818cf8] border-2 border-[#4f46e5] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 8</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#a78bfa] border-2 border-[#7c3aed] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 9</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#e879f9] border-2 border-[#c026d3] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 10</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#f472b6] border-2 border-[#db2777] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 11</span></div>
+                      <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded-full bg-[#94a3b8] border-2 border-[#475569] shadow-sm"></span><span class="text-[11px] font-bold text-slate-600">Wilayah 12</span></div>
+                  </div>
+              </div>
+          </div> <!-- PENUTUP KOTAK PETA YANG SEBELUMNYA HILANG -->
+
+          <!-- ========================================== -->
+          <!-- 2. BARISAN CHART (GRAFIK) -->
+          <!-- ========================================== -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div class="bg-white p-8 rounded-3xl soft-shadow border border-slate-100"><h3 class="text-sm font-bold text-slate-700 mb-6 flex items-center gap-2"><i class="fas fa-chart-bar text-indigo-500"></i> Distribusi Wilayah</h3><div class="chart-box"><canvas id="chartWilayah"></canvas></div></div>
+            <div class="bg-white p-8 rounded-3xl soft-shadow border border-slate-100"><h3 class="text-sm font-bold text-slate-700 mb-6 flex items-center gap-2"><i class="fas fa-chart-pie text-indigo-500"></i> Persentase Jabatan</h3><div class="chart-box"><canvas id="chartJabatan"></canvas></div></div>
+          </div>
+          
+        <!-- ========================================== -->
+          <!-- 3. RINCIAN TOTAL MAJELIS PER JABATAN -->
+          <!-- ========================================== -->
+          <div class="mt-6">
+            <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2"><i class="fas fa-users text-indigo-500"></i> Rincian Total Majelis Berdasarkan Jabatan</h3>
+            <div id="jobStatsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+               <!-- Data akan muncul otomatis di sini -->
+            </div>
+          </div>
+
+        </div> <!-- PENUTUP HALAMAN DASHBOARD PAGEHOME (INI YANG TERTINGGAL) -->
+
+        <!-- HALAMAN DATA JEMAAT (TERPISAH KINI) -->
+        <div id="pageJemaat" class="hidden space-y-6 animate-fade">
+          <div class="bg-white p-5 rounded-3xl soft-shadow border border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="relative"><select id="f_wil_j" onchange="syncResortJemaatPage()" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold text-sm text-slate-700 focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer"></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i></div>
+            <div class="relative"><select id="f_res_j" onchange="syncGerejaJemaatPage()" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold text-sm text-slate-700 focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer"></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i></div>
+            <div class="relative"><select id="f_ger_j" onchange="filterTabelJemaat()" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold text-sm text-slate-700 focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer"></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i></div>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div class="relative w-full md:w-[400px]">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="search_j" placeholder="Cari Nama / No KK Jemaat..." class="w-full py-3.5 pl-11 pr-4 bg-white rounded-2xl border border-slate-200 soft-shadow outline-none text-sm font-medium focus:ring-2 focus:ring-emerald-500 transition-all">
+            </div>
+            <div class="flex gap-3 w-full md:w-auto overflow-x-auto">
+              <button id="btnTabTambahJemaat" onclick="openFormJemaatBulk()" class="flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3.5 rounded-2xl font-bold uppercase text-xs shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 whitespace-nowrap"><i class="fas fa-plus"></i> Tambah Jemaat (Keluarga)</button>
+              <input type="file" id="inputExcelImportJemaat" accept=".xlsx, .xls" class="hidden" onchange="prosesImportJemaatExcel(event)">
+              <button id="btnTabImportJemaat" onclick="klikImportJemaatExcelSmart()" class="flex items-center justify-center gap-2 bg-slate-800 text-white px-6 py-3.5 rounded-2xl font-bold uppercase text-xs shadow-lg shadow-slate-200 hover:bg-slate-900 transition-all active:scale-95 whitespace-nowrap"><i class="fas fa-file-import"></i> Import & Template</button>
+            <button onclick="bukaPreviewCetakData()" class="flex items-center justify-center gap-2 bg-rose-600 text-white px-6 py-3.5 rounded-2xl font-bold uppercase text-xs shadow-lg shadow-rose-200 hover:bg-rose-700 transition-all active:scale-95 whitespace-nowrap"><i class="fas fa-print"></i> Cetak PDF</button>
+              <button onclick="exportToExcel()" class="flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3.5 rounded-2xl font-bold uppercase text-xs shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 whitespace-nowrap"><i class="fas fa-file-excel"></i> Export Excel</button>
+            </div>
+          </div>
+
+          <!-- TABEL JEMAAT -->
+          <div id="kontenJemaat" class="bg-white rounded-3xl soft-shadow border border-slate-100 overflow-hidden flex flex-col">
+            <div class="p-5 bg-emerald-50/50 border-b border-slate-100 flex justify-between items-center">
+              <h3 class="font-bold text-emerald-800"><i class="fas fa-users-cog text-emerald-500 mr-2"></i> Database Kepala Keluarga & Jemaat</h3>
+              <span class="px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold shadow-sm border border-emerald-200" id="labelTotalKK">0 KK</span>
+            </div>
+            <div id="jemaatAccordionContainer" class="p-5 space-y-4 overflow-y-auto min-h-[300px] bg-slate-50/50"></div>
+            <div id="paginationJemaat" class="p-4 bg-white border-t border-slate-200 flex justify-center items-center"></div>
+          </div>
+        </div>
+
+        <!-- HALAMAN DATA INTERNAL -->
+        <div id="pageSearch" class="hidden space-y-6 animate-fade">
+          <div class="bg-white p-5 rounded-3xl soft-shadow border border-slate-100 grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="relative"><select id="filterWilayah" onchange="syncFilterResort()" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer"></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i></div>
+            <div class="relative"><select id="filterResort" onchange="syncFilterGereja()" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer"></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i></div>
+            <div class="relative"><select id="filterGereja" onchange="filterTabel()" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer"></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i></div>
+            <div class="relative"><select id="filterJabatan" onchange="filterTabel()" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer"></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i></div>
+            <div class="relative"><select id="sortData" onchange="filterTabel()" class="w-full p-3.5 bg-indigo-50 border border-indigo-200 rounded-xl outline-none font-bold text-sm text-indigo-700 focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer"><option value="hierarki">🏆 Pimpinan di Atas</option><option value="nama_az">🔤 Abjad (A - Z)</option><option value="wilayah">📍 Urutkan Wilayah</option></select><i class="fas fa-sort absolute right-4 top-1/2 -translate-y-1/2 text-indigo-400 text-xs pointer-events-none"></i></div>
+          </div>
+          
+          <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div class="relative w-full md:w-[400px]">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="searchTerm" placeholder="Ketik pencarian majelis..." class="w-full py-3.5 pl-11 pr-4 bg-white rounded-2xl border border-slate-200 soft-shadow outline-none text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all">
+            </div>
+            <div class="flex gap-3 w-full md:w-auto overflow-x-auto">
+              <input type="file" id="inputExcelImport" accept=".xlsx, .xls" class="hidden" onchange="prosesImportExcel(event)">
+              <button id="btnTabImportMajelis" onclick="klikImportExcelSmart()" class="flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3.5 rounded-2xl font-bold uppercase text-xs shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 whitespace-nowrap"><i class="fas fa-file-import"></i> Import & Template</button>
+              <button id="btnTabBlastWA" onclick="openBlastModal()" class="flex items-center justify-center gap-2 bg-amber-500 text-white px-6 py-3.5 rounded-2xl font-bold uppercase text-xs shadow-lg shadow-amber-200 hover:bg-amber-600 transition-all active:scale-95 whitespace-nowrap"><i class="fas fa-bullhorn"></i> Blast WA</button>
+             <button onclick="bukaPreviewCetakData()" class="flex items-center justify-center gap-2 bg-rose-600 text-white px-6 py-3.5 rounded-2xl font-bold uppercase text-xs shadow-lg shadow-rose-200 hover:bg-rose-700 transition-all active:scale-95 whitespace-nowrap"><i class="fas fa-print"></i> Cetak PDF</button>
+              <button onclick="exportToExcel()" class="flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3.5 rounded-2xl font-bold uppercase text-xs shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 whitespace-nowrap"><i class="fas fa-file-excel"></i> Export</button>
+            </div>
+          </div>
+
+      <div class="flex border-b border-slate-200 mb-6 mt-4 overflow-x-auto no-scrollbar">
+  <button id="tabBtnMajelis" onclick="switchDataTab('majelis')" class="px-6 py-3 font-bold text-sm text-indigo-600 border-b-2 border-indigo-600 transition-all focus:outline-none whitespace-nowrap"><i class="fas fa-sitemap mr-2"></i> Struktur Majelis</button>
+  <button id="tabBtnIndividu" onclick="switchDataTab('individu')" class="px-6 py-3 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-600 transition-all focus:outline-none whitespace-nowrap"><i class="fas fa-address-book mr-2"></i> Direktori Personil</button>
+  <button id="tabBtnGereja" onclick="switchDataTab('gereja')" class="px-6 py-3 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-600 transition-all focus:outline-none whitespace-nowrap"><i class="fas fa-church mr-2"></i> Data Unit Gereja</button>
+  
+  <!-- TOMBOL BARU: DATA KORWIL -->
+  <button id="tabBtnKorwil" onclick="switchDataTab('korwil')" class="px-6 py-3 font-bold text-sm text-slate-400 border-b-2 border-transparent hover:text-slate-600 transition-all focus:outline-none whitespace-nowrap"><i class="fas fa-map-marked-alt mr-2"></i> Data Korwil</button>
+</div>
+
+<!-- ... TABEL MAJELIS, INDIVIDU, GEREJA TETAP DIBIARKAN ... -->
+
+<!-- WADAH BARU UNTUK KORWIL -->
+<div id="kontenKorwil" class="hidden bg-white rounded-3xl soft-shadow border border-slate-100 overflow-hidden flex flex-col animate-fade">
+  <div class="p-5 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+    <h3 class="font-bold text-slate-700"><i class="fas fa-map-marked-alt text-indigo-500 mr-2"></i> Koordinator Wilayah (Korwil 1-12)</h3>
+    <!-- TOMBOL TAMBAH KORWIL DITAMBAHKAN DI SINI -->
+    <button onclick="openFormKorwil()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-2">
+      <i class="fas fa-plus"></i> <span class="hidden sm:inline">Tambah Korwil</span>
+    </button>
+  </div>
+  <div class="p-6">
+      <div id="listDataKorwil" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <!-- Kartu Korwil akan masuk ke sini -->
+      </div>
+  </div>
+</div>
+
+          <!-- TABEL MAJELIS -->
+          <div id="kontenMajelis" class="block bg-white rounded-3xl soft-shadow border border-slate-100 overflow-hidden flex flex-col animate-fade">
+            <div class="p-5 bg-slate-50 border-b border-slate-100 flex justify-between items-center"><h3 class="font-bold text-slate-700"><i class="fas fa-sitemap text-indigo-500 mr-2"></i> Struktur Majelis Per Gereja</h3></div>
+            <div id="majelisAccordionContainer" class="p-5 space-y-4 overflow-y-auto min-h-[300px] bg-slate-50/50"></div>
+            <div id="paginationMajelis" class="p-4 bg-white border-t border-slate-200 flex justify-center items-center"></div>
+          </div>
+
+          <!-- TABEL INDIVIDU -->
+          <div id="kontenIndividu" class="hidden bg-white rounded-3xl soft-shadow border border-slate-100 overflow-hidden flex flex-col animate-fade">
+            <div class="p-5 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+              <h3 class="font-bold text-slate-700"><i class="fas fa-address-book text-indigo-500 mr-2"></i> Daftar Seluruh Personil Majelis</h3>
+              <span class="px-4 py-1.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold" id="totalIndividu">0 Orang</span>
+            </div>
+            <div class="overflow-x-auto min-h-[300px]">
+              <table class="w-full text-left border-collapse whitespace-nowrap">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    <th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-12">No</th>
+                    <th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Nama Lengkap & UID</th>
+                    <th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Jabatan</th>
+                    <th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Penempatan Unit</th>
+                    <th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Tindakan</th>
+                  </tr>
+                </thead>
+                <tbody id="individuTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+              </table>
+            </div>
+            <div id="paginationIndividu" class="p-4 bg-slate-50 border-t border-slate-200 flex justify-center items-center"></div>
+          </div>
+
+          <!-- TABEL GEREJA -->
+          <div id="kontenGereja" class="hidden bg-white rounded-3xl soft-shadow border border-slate-100 overflow-hidden flex flex-col animate-fade">
+            <div class="p-5 bg-slate-50 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+              <h3 class="font-bold text-slate-700"><i class="fas fa-chart-line text-indigo-500 mr-2"></i> Statistik Unit Gereja</h3>
+              <div class="flex gap-3"><span class="px-4 py-2 bg-amber-100 text-amber-700 rounded-xl text-xs font-bold shadow-sm border border-amber-200 flex items-center gap-2"><i class="fas fa-users-cog"></i> Total RT: <span id="filterTotalRT" class="text-sm font-black">0</span></span><span class="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold shadow-sm border border-emerald-200 flex items-center gap-2"><i class="fas fa-user-friends"></i> Total Jiwa: <span id="filterTotalJiwa" class="text-sm font-black">0</span></span></div>
+            </div>
+            <div class="overflow-x-auto min-h-[300px]"><table id="tableGereja" class="w-full text-left border-collapse whitespace-nowrap"><thead class="bg-slate-50 border-b border-slate-200"><tr><th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Unit Gereja</th><th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Pimpinan (Otomatis)</th><th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Total RT</th><th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Total Jiwa</th><th class="p-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Tindakan</th></tr></thead><tbody id="gerejaTableBody" class="divide-y divide-slate-100 text-sm"></tbody></table></div>
+            <div id="paginationGereja" class="p-4 bg-slate-50 border-t border-slate-200 flex justify-center items-center"></div>
+          </div>
+        </div>
+<!-- ========================================== -->
+        <!-- HALAMAN AKSES ADMIN (MANAJEMEN PETUGAS)    -->
+        <!-- ========================================== -->
+        <div id="pageAdmin" class="hidden space-y-6 animate-fade">
+          <div class="mb-2">
+            <h2 class="text-xl font-black text-slate-800"><i class="fas fa-shield-alt text-rose-500 mr-2"></i> Manajemen Akses Petugas</h2>
+            <p class="text-xs text-slate-500 mt-1 font-medium">Kelola akun admin dan petugas yang memiliki akses ke dalam sistem database.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Kolom Kiri: Form Tambah Petugas -->
+            <div class="lg:col-span-1">
+                <div class="bg-white p-6 md:p-8 rounded-3xl soft-shadow border border-slate-100 h-full">
+                    <h3 class="text-sm font-bold text-slate-700 mb-6 flex items-center gap-2 border-b border-slate-50 pb-3"><i class="fas fa-user-plus text-indigo-500"></i> Buat Akun Baru</h3>
+                    <form onsubmit="handleSavePetugas(event)" class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap</label>
+                            <input type="text" name="Nama" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 text-sm font-bold text-slate-700 transition-all">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Username (Tanpa Spasi)</label>
+                            <input type="text" name="Username" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 text-sm font-bold text-slate-700 transition-all">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Password</label>
+                            <input type="password" name="Password" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 text-sm font-bold text-slate-700 transition-all">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Hak Akses (Role)</label>
+                            <select name="Role" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 text-sm font-bold text-slate-700 transition-all cursor-pointer">
+                                <option value="Viewer">Viewer (Hanya Lihat Data)</option>
+                                <option value="Editor">Editor (Bisa Tambah/Edit Data)</option>
+                                <option value="Admin">Super Admin (Akses Penuh)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full mt-4 bg-indigo-600 text-white p-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-indigo-700 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i> Simpan Akun
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Daftar Petugas Terdaftar -->
+            <div class="lg:col-span-2">
+                <div class="bg-white p-6 md:p-8 rounded-3xl soft-shadow border border-slate-100 h-full flex flex-col">
+                    <h3 class="text-sm font-bold text-slate-700 mb-6 flex items-center gap-2 border-b border-slate-50 pb-3"><i class="fas fa-users-cog text-emerald-500"></i> Daftar Petugas Aktif</h3>
+                    <div class="overflow-y-auto custom-scrollbar flex-1 pr-2">
+                        <div id="adminTablePetugas" class="grid grid-cols-1 md:grid-cols-2 gap-4 content-start">
+                            <!-- Card Petugas akan di-generate oleh JS secara otomatis di sini -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+          </div>
+        </div>
+        
+   <!-- HALAMAN LOG AKTIVITAS -->
+        <div id="pageLog" class="hidden space-y-6 animate-fade">
+          <div class="bg-white p-6 md:p-8 rounded-3xl soft-shadow border border-slate-100 h-full flex flex-col">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2"><i class="fas fa-clipboard-list text-amber-500"></i> Riwayat Aktivitas Sistem</h3>
+                <div class="flex items-center gap-3">
+                    <button onclick="konfirmasiHapusLog()" id="btnHapusLog" class="bg-rose-50 hover:bg-rose-500 text-rose-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all border border-rose-200 shadow-sm flex items-center gap-2"><i class="fas fa-trash-alt"></i> Bersihkan Log</button>
+                    <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-amber-200">Audit Trail</span>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto flex-1 custom-scrollbar border border-slate-100 rounded-2xl mb-4">
+                <table class="w-full text-left whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10">
+                        <tr>
+                            <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Timestamp</th>
+                            <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sumber Lokasi</th>
+                            <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Tindakan</th>
+                            <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Detail Informasi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableLogAktivitas" class="divide-y divide-slate-50 text-sm">
+                        <tr><td colspan="4" class="p-10 text-center text-slate-400 font-bold border-2 border-dashed border-slate-100 rounded-xl">Menunggu sinkronisasi dari server...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINASI / HALAMAN LOG -->
+            <div id="paginationLog" class="flex justify-center items-center pt-2"></div>
+          </div>
+        </div>
+        <!-- HALAMAN CHECK LIST DATA INPUT -->
+        <div id="pageChecklist" class="hidden space-y-6 animate-fade">
+          <div class="mb-2">
+            <h2 class="text-xl font-black text-slate-800"><i class="fas fa-tasks text-emerald-500 mr-2"></i>Monitoring Check List Input</h2>
+            <p class="text-xs text-slate-500 mt-1 font-medium">Pantau kelengkapan personil majelis di setiap Resort, Jemaat Khusus, dan Pagaran.</p>
+          </div>
+
+     <div class="flex flex-wrap gap-3">
+    <!-- Tombol 1: Laporan Full -->
+    <button type="button" onclick="cetakPDFGereja('full')" class="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors flex items-center gap-2 shadow-sm">
+        <i class="fas fa-file-pdf"></i> Cetak Semua Gereja
+    </button>
+    
+    <!-- Tombol 2: Laporan Evaluasi (Majelis < 3) -->
+    <button type="button" onclick="cetakPDFGereja('evaluasi')" class="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-xs font-bold hover:bg-rose-100 transition-colors flex items-center gap-2 shadow-sm">
+        <i class="fas fa-file-pdf"></i> Cetak Evaluasi (Majelis < 3)
+    </button>
+</div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white rounded-3xl p-6 soft-shadow border border-slate-100 flex items-center justify-between">
+              <div><p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Unit (Gereja & PHR)</p><h4 id="chkTotalUnit" class="text-3xl font-black text-slate-800">0</h4></div>
+              <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl"><i class="fas fa-church"></i></div>
+            </div>
+        
+            <div class="bg-white rounded-3xl p-6 soft-shadow border border-slate-100 flex items-center justify-between">
+              <div><p class="text-emerald-500 text-[10px] font-bold uppercase tracking-widest mb-1">Data Sudah Lengkap</p><h4 id="chkLengkap" class="text-3xl font-black text-emerald-600">0</h4></div>
+              <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl"><i class="fas fa-check-circle"></i></div>
+            </div>
+            <div class="bg-white rounded-3xl p-6 soft-shadow border border-slate-100 flex items-center justify-between">
+              <div><p class="text-rose-500 text-[10px] font-bold uppercase tracking-widest mb-1">Data Belum Lengkap</p><h4 id="chkBelum" class="text-3xl font-black text-rose-600">0</h4></div>
+              <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl"><i class="fas fa-exclamation-triangle"></i></div>
+            </div>
+          </div>
+          <!-- PROGRESS KELENGKAPAN PER WILAYAH -->
+          <div class="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-6 relative overflow-hidden">
+              <div class="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-blue-500/10 rounded-full blur-2xl"></div>
+              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-5 flex items-center border-b border-slate-50 pb-3 relative z-10"><i class="fas fa-map-marked-alt text-indigo-400 mr-2 text-base"></i> Persentase Kelengkapan Wilayah</h4>
+              <div id="progressWilayahContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 relative z-10">
+                  <!-- Kotak wilayah 1-12 akan diisi otomatis oleh Javascript -->
+              </div>
+          </div>
+
+          <div class="bg-white p-6 md:p-8 rounded-3xl soft-shadow border border-slate-100 flex-1 flex flex-col">
+            <div class="overflow-x-auto border border-slate-100 rounded-2xl custom-scrollbar">
+              <table class="w-full text-left whitespace-nowrap">
+                <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 select-none">
+                  <tr>
+                    <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center w-12">No</th>
+                    <th onclick="sortChecklist('nama')" class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition-colors group rounded-l-lg">
+                        Nama Unit & Wilayah <i id="iconSort_nama" class="fas fa-sort ml-1 text-slate-300 group-hover:text-indigo-400"></i>
+                    </th>
+                    <th onclick="sortChecklist('personil')" class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition-colors group">
+                        Total Personil <i id="iconSort_personil" class="fas fa-sort ml-1 text-slate-300 group-hover:text-indigo-400"></i>
+                    </th>
+                    <th onclick="sortChecklist('progress')" class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition-colors group">
+                        Progress Kelengkapan <i id="iconSort_progress" class="fas fa-sort ml-1 text-slate-300 group-hover:text-indigo-400"></i>
+                    </th>
+                    <th onclick="sortChecklist('status')" class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition-colors group rounded-r-lg">
+                        Status <i id="iconSort_status" class="fas fa-sort ml-1 text-slate-300 group-hover:text-indigo-400"></i>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="tableChecklist" class="divide-y divide-slate-50 text-sm">
+                  <tr><td colspan="5" class="p-10 text-center text-slate-400 font-bold">Mengumpulkan data kelengkapan...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="paginationChecklist" class="flex justify-center items-center pt-4 mt-2"></div>
+          </div>
+        </div>
+
+<!-- ========================================== -->
+      <!-- ========================================== -->
+        <!-- HALAMAN E-ARSIP (KONSEP RAK/FOLDER) -->
+        <!-- ========================================== -->
+        <div id="pageArsip" class="hidden space-y-6 animate-fade flex-1 flex flex-col">
+          
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-6 rounded-3xl soft-shadow border border-slate-100">
+            <div class="w-full md:w-auto">
+              <h2 class="text-xl font-black text-slate-800 flex items-center"><i class="fas fa-archive text-amber-500 mr-3 text-2xl"></i> Ruang Arsip Digital</h2>
+              <p class="text-xs text-slate-500 mt-1 font-medium">Rak penyimpanan Izin, SK, dan Dokumen per Resort/Unit.</p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+             <!-- DROPDOWN FILTER WILAYAH -->
+                <div class="relative w-full md:w-48 shrink-0 z-20">
+                    <select id="filterWilayahArsip" onchange="filterRakArsip()" class="relative z-20 w-full py-3.5 pl-4 pr-10 bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500 rounded-xl text-xs font-bold text-slate-700 transition-all shadow-inner appearance-none cursor-pointer">
+                        <option value="">Semua Wilayah</option>
+                        <option value="1">Wilayah 1</option>
+                        <option value="2">Wilayah 2</option>
+                        <option value="3">Wilayah 3</option>
+                        <option value="4">Wilayah 4</option>
+                        <option value="5">Wilayah 5</option>
+                        <option value="6">Wilayah 6</option>
+                        <option value="7">Wilayah 7</option>
+                        <option value="8">Wilayah 8</option>
+                        <option value="9">Wilayah 9</option>
+                        <option value="10">Wilayah 10</option>
+                        <option value="11">Wilayah 11</option>
+                        <option value="12">Wilayah 12</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none z-30"></i>
+                </div>
+
+                <!-- PENCARIAN LEMARI RESORT -->
+                <div class="relative w-full md:w-56 shrink-0">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="cariRakArsip" onkeyup="filterRakArsip()" placeholder="Cari Nama Resort..." class="w-full py-3.5 pl-11 pr-4 bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500 rounded-xl text-xs font-bold text-slate-700 transition-all shadow-inner">
+                </div>
+                
+                <!-- TOMBOL UNGGAH -->
+                <button onclick="bukaModalUploadArsip()" class="w-full md:w-auto bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-amber-200 transition-all flex items-center justify-center gap-2 shrink-0">
+                    <i class="fas fa-cloud-upload-alt text-sm"></i> <span class="hidden lg:inline">Unggah Dokumen</span><span class="lg:hidden">Unggah</span>
+                </button>
+            </div>
+          </div>
+
+          <!-- GRID RAK FOLDER (Sudah Dilengkapi Paginasi) -->
+          <div class="bg-white p-6 md:p-8 rounded-3xl soft-shadow border border-slate-100 flex-1 flex flex-col overflow-hidden">
+              <!-- Area Lemari (Bisa Scroll) -->
+              <div class="overflow-y-auto custom-scrollbar flex-1 pb-4">
+                  <div id="rakArsipContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 content-start">
+                      <!-- Folder akan muncul di sini -->
+                  </div>
+              </div>
+              
+              <!-- Tempat Paginasi (Tombol Halaman) -->
+              <div id="paginationArsip" class="flex justify-center items-center pt-4 border-t border-slate-100 mt-2 shrink-0"></div>
+          </div>
+
+        </div>
+<!-- ================= SELURUH KOTAK POP-UP/MODAL DI BAWAH INI ================= -->
+<!-- MODAL MUTASI PERSONIL -->
+<div id="modalMutasi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[120] flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-y-auto max-h-[95vh] relative animate-zoom border border-slate-100">
+    
+    <div class="sticky top-0 bg-white/90 backdrop-blur border-b border-slate-100 px-8 py-6 flex justify-between items-center z-10">
+      <div>
+        <h3 class="text-xl font-extrabold text-slate-800 flex items-center"><i class="fas fa-exchange-alt text-emerald-500 mr-3"></i> Mutasi Personil</h3>
+        <p class="text-xs text-slate-500 font-medium mt-1">Pindahkan penempatan unit pelayanan</p>
+      </div>
+      <button onclick="closeModal('modalMutasi')" class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition-colors"><i class="fas fa-times"></i></button>
+    </div>
+
+    <form id="formMutasi" onsubmit="handleSimpanMutasi(event)" class="p-8 space-y-5 bg-slate-50/50">
+      <input type="hidden" name="ID_Majelis" id="mut_id">
+      <input type="hidden" name="Nama_Lengkap" id="mut_nama_hidden">
+      <input type="hidden" name="Asal_Resort" id="mut_asal_resort">
+      
+      <!-- INFO PERSONIL (Read Only) -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl shrink-0"><i class="fas fa-user-tie"></i></div>
+          <div class="flex-1 overflow-hidden">
+              <p id="mut_nama" class="font-black text-slate-800 text-sm truncate">Nama Personil</p>
+              <p id="mut_jabatan" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Jabatan</p>
+          </div>
+      </div>
+
+      <!-- PENEMPATAN LAMA -->
+      <div class="relative">
+          <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-200 z-0"></div>
+          
+          <div class="relative z-10 pl-10 mb-6">
+              <div class="absolute left-2.5 top-1 w-3.5 h-3.5 rounded-full bg-rose-400 border-2 border-white shadow-sm"></div>
+              <p class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-1">Penempatan Asal</p>
+              <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                  <p id="mut_asal_gereja" class="text-xs font-bold text-slate-700">Nama Gereja Lama</p>
+              </div>
+          </div>
+
+          <!-- PENEMPATAN BARU -->
+          <div class="relative z-10 pl-10">
+              <div class="absolute left-2.5 top-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white shadow-sm animate-pulse"></div>
+              <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-2">Penempatan Tujuan Baru</p>
+              
+              <div class="space-y-3 bg-white p-4 rounded-xl border border-emerald-100 shadow-sm">
+                  <div class="space-y-1">
+                      <label class="text-[9px] font-bold text-slate-500 uppercase">1. Wilayah Tujuan</label>
+                      <select name="Wilayah_Baru" id="mut_wilayah" onchange="syncFormResortMutasi()" required class="w-full p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-emerald-500 text-xs font-bold transition-all"></select>
+                  </div>
+                  <div class="space-y-1">
+                      <label class="text-[9px] font-bold text-slate-500 uppercase">2. Resort / JK Tujuan</label>
+                      <select name="Resort_Baru" id="mut_resort" onchange="syncFormGerejaMutasi()" required class="w-full p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-emerald-500 text-xs font-bold transition-all"></select>
+                  </div>
+                  <div class="space-y-1" id="wadahMutGereja">
+                      <label class="text-[9px] font-bold text-slate-500 uppercase">3. Unit Gereja Tujuan</label>
+                      <select name="Nama_Gereja_Baru" id="mut_gereja" required class="w-full p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-emerald-500 text-xs font-bold transition-all"></select>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div class="space-y-1.5 mt-2">
+          <label class="text-[10px] font-bold text-slate-500 uppercase">Nomor SK / Keterangan (Opsional)</label>
+          <input type="text" name="Keterangan_Mutasi" class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:border-emerald-500 text-sm font-semibold placeholder:font-normal" placeholder="Cth: SK.Mutasi/123/2026">
+      </div>
+
+      <div class="pt-4 mt-2">
+        <button type="submit" id="btnSimpanMutasi" class="w-full bg-emerald-600 text-white p-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-emerald-700 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <i class="fas fa-check-circle"></i> Eksekusi Mutasi
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+        
+        <!-- MODAL FORM KORWIL -->
+<div id="modalFormKorwil" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-y-auto max-h-[95vh] relative animate-zoom">
+    
+    <div class="sticky top-0 bg-white/90 backdrop-blur border-b border-slate-100 px-8 py-6 flex justify-between items-center z-10">
+      <div>
+        <h3 class="text-xl font-extrabold text-slate-800 flex items-center"><i class="fas fa-map-marked-alt text-indigo-500 mr-2"></i> Form Data Korwil</h3>
+        <p class="text-xs text-slate-500 font-medium mt-1">Input atau edit data Koordinator Wilayah</p>
+      </div>
+      <button onclick="closeModal('modalFormKorwil')" class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition-colors"><i class="fas fa-times"></i></button>
+    </div>
+
+    <form id="formInputKorwil" onsubmit="handleSimpanKorwil(event)" class="p-8 space-y-5">
+      <input type="hidden" name="ID_Korwil" id="k_id">
+      
+      <div class="space-y-1.5">
+        <label class="text-[10px] font-bold text-slate-500 uppercase">Pilih Wilayah <span class="text-rose-500">*</span></label>
+        <select name="Wilayah" id="k_wilayah" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm text-slate-700 transition-all cursor-pointer">
+          <option value="">-- Pilih Wilayah Tugas --</option>
+          <option value="1">Wilayah 1</option>
+          <option value="2">Wilayah 2</option>
+          <option value="3">Wilayah 3</option>
+          <option value="4">Wilayah 4</option>
+          <option value="5">Wilayah 5</option>
+          <option value="6">Wilayah 6</option>
+          <option value="7">Wilayah 7</option>
+          <option value="8">Wilayah 8</option>
+          <option value="9">Wilayah 9</option>
+          <option value="10">Wilayah 10</option>
+          <option value="11">Wilayah 11</option>
+          <option value="12">Wilayah 12</option>
+        </select>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap Korwil <span class="text-rose-500">*</span></label>
+        <div class="relative">
+          <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" name="Nama_Korwil" id="k_nama" required class="w-full py-3.5 pl-11 pr-4 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm text-slate-700 transition-all" placeholder="Contoh: Pdt. Nama Lengkap, S.Th">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-bold text-slate-500 uppercase">No. WhatsApp</label>
+          <div class="relative">
+            <i class="fab fa-whatsapp absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 text-lg"></i>
+            <input type="text" name="No_HP" id="k_hp" class="w-full py-3.5 pl-11 pr-4 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 font-semibold text-sm text-slate-700 transition-all" placeholder="08123456...">
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-bold text-slate-500 uppercase">Status Aktif</label>
+          <select name="Status" id="k_status" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm text-slate-700 transition-all cursor-pointer">
+            <option value="Aktif">Aktif Bertugas</option>
+            <option value="Non-Aktif">Non-Aktif / Purna</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-[10px] font-bold text-slate-500 uppercase">Keterangan / Alamat (Opsional)</label>
+        <textarea name="Keterangan" id="k_keterangan" rows="2" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm text-slate-700 transition-all" placeholder="Tulis catatan tambahan..."></textarea>
+      </div>
+
+      <div class="pt-4 mt-2">
+        <button type="submit" id="btnSimpanKorwil" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-indigo-700 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <i class="fas fa-save"></i> Simpan Data Korwil
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH KELUARGA BULK -->
+<div id="modalTambahKeluarga" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[90] flex items-center justify-center p-4 md:p-6">
+  <div class="bg-white w-full max-w-4xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-full relative animate-zoom border border-slate-100">
+    <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white z-10 shrink-0">
+      <div>
+          <h3 class="text-xl font-black text-slate-800 flex items-center"><i class="fas fa-users-cog text-emerald-500 mr-3 text-2xl"></i> Formulir Data Keluarga</h3>
+          <p class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Registrasi Kepala Keluarga beserta Anggota</p>
+      </div>
+      <button aria-label="Tutup" onclick="closeModal('modalTambahKeluarga')" class="w-8 h-8 flex items-center justify-center bg-slate-50 text-slate-400 rounded-full hover:bg-rose-50 hover:text-rose-500 transition-colors"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <form id="formKeluargaBulk" onsubmit="simpanKeluargaBulk(event)" class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50/50 custom-scrollbar">
+      
+      <div class="bg-white border border-slate-200 rounded-[1.5rem] p-6 mb-6 shadow-sm">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-50 pb-3"><i class="fas fa-map-marker-alt text-emerald-400 mr-2 text-sm"></i> Penempatan Unit Gereja</h4>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+             <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Wilayah</label><select id="bk_wilayah" onchange="syncFormResortBulk()" required class="w-full h-[50px] px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500"></select></div>
+             <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Resort / JK</label><select id="bk_resort" onchange="syncFormGerejaBulk()" required class="w-full h-[50px] px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500"></select></div>
+             <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Unit Gereja</label><select id="bk_gereja" required class="w-full h-[50px] px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500"></select></div>
+             <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">No KK <span class="text-emerald-500 normal-case">(Opsional)</span></label><input type="text" id="bk_kk" class="w-full h-[50px] px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 font-bold text-emerald-700" placeholder="Ketik No KK..."></div>
+          </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-[1.5rem] p-6 mb-6 shadow-sm">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-50 pb-3"><i class="fas fa-user-tie text-emerald-400 mr-2 text-sm"></i> Identitas Kepala Keluarga</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+             <div class="lg:col-span-2 space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Nama Kepala Keluarga</label><input type="text" id="bk_nama_kk" required class="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500"></div>
+             <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">L/P</label><select id="bk_jk_kk" required class="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+             <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Tanggal Lahir</label><input type="date" id="bk_tgl_kk" required class="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500"></div>
+             <div class="lg:col-span-4 space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Pekerjaan</label><input type="text" id="bk_pek_kk" class="w-full h-[50px] px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500"></div>
+          </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-[1.5rem] p-6 mb-6 shadow-sm">
+          <div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-3">
+             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest"><i class="fas fa-users text-emerald-400 mr-2 text-sm"></i> Daftar Anggota Keluarga</h4>
+             <button type="button" onclick="tambahBarisAnggota()" class="px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-emerald-500 hover:text-white transition-colors"><i class="fas fa-plus mr-1"></i> Tambah Anggota</button>
+          </div>
+          <!-- Baris Anggota akan di-generate ke samping (Horizontal) -->
+          <div id="containerAnggotaKeluarga" class="space-y-3 mb-2"></div>
+      </div>
+
+      <button type="submit" id="btnSubmitKeluarga" class="w-full bg-slate-800 text-white p-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-slate-200 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"><i class="fas fa-save text-lg"></i> Simpan Data Keluarga</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL EDIT INDIVIDU JEMAAT -->
+<div id="modalFormJemaat" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-y-auto max-h-[95vh] relative animate-zoom">
+    <div class="sticky top-0 bg-white/90 backdrop-blur border-b border-slate-100 px-8 py-6 flex justify-between items-center z-10">
+      <div><h3 id="modalTitleJemaat" class="text-xl font-extrabold text-slate-800 flex items-center"><i class="fas fa-user-edit text-amber-500 mr-2"></i> Edit Data Jemaat</h3></div>
+      <button onclick="closeModal('modalFormJemaat')" class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition-colors"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="formEditJemaat" onsubmit="handleSimpanJemaat(event)" class="p-8 space-y-5">
+      <input type="hidden" name="ID_Jemaat" id="j_id">
+      <div class="bg-amber-50 p-5 rounded-2xl border border-amber-100 text-center"><label class="text-[11px] font-bold text-amber-700 uppercase tracking-widest block mb-2">Nomor KK (Kartu Keluarga)</label><input type="text" name="No_KK" id="j_kk" class="w-full p-3.5 rounded-xl bg-white border border-amber-300 outline-none focus:ring-2 focus:ring-amber-500 text-sm font-bold text-center uppercase text-slate-700"></div>
+      <div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Nama Lengkap</label><input type="text" name="Nama_Lengkap" id="j_nama" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-amber-500 font-semibold text-sm transition-all"></div>
+      <div class="grid grid-cols-2 gap-5"><div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Status Hubungan</label><select name="Status_Keluarga" id="j_status" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-amber-500 font-semibold text-sm transition-all"><option value="Kepala Keluarga">Kepala Keluarga</option><option value="Istri">Istri</option><option value="Anak">Anak</option><option value="Tanggungan">Tanggungan Lain</option></select></div><div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Jenis Kelamin</label><select name="Jenis_Kelamin" id="j_jk" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-amber-500 font-semibold text-sm transition-all"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div></div>
+      <div class="grid grid-cols-2 gap-5"><div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Tanggal Lahir</label><input type="date" name="Tanggal_Lahir" id="j_tgl" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-amber-500 font-semibold text-sm text-slate-700 transition-all"></div><div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Kondisi</label><select name="Kondisi" id="j_kondisi" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-amber-500 font-semibold text-sm transition-all"><option value="Hidup">Hidup</option><option value="Meninggal">Meninggal</option></select></div></div>
+      <div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Pekerjaan</label><input type="text" name="Pekerjaan" id="j_pekerjaan" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-amber-500 font-semibold text-sm transition-all"></div>
+      <div class="pt-4 border-t border-slate-100 grid grid-cols-2 gap-5"><div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Wilayah</label><select name="Wilayah" id="j_wilayah" onchange="syncFormResortJemaatEdit()" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-amber-500 font-semibold text-sm transition-all"></select></div><div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Resort / JK</label><select name="Resort" id="j_resort" onchange="syncFormGerejaJemaatEdit()" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-amber-500 font-semibold text-sm transition-all"></select></div></div>
+      <div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Unit Nama Gereja</label><select name="Nama_Gereja" id="j_gereja" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-amber-500 text-xs transition-all"></select></div>
+      <div class="pt-4"><button type="submit" id="btnEditJemaatIndividu" class="w-full bg-emerald-600 text-white p-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"><i class="fas fa-save"></i> Simpan Data</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL FORM MAJELIS (SATUAN) -->
+<div id="modalForm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] relative animate-zoom">
+    <!-- Header Modal (Sticky agar tidak ikut ter-scroll) -->
+    <div class="bg-white/95 backdrop-blur border-b border-slate-100 px-6 py-5 md:px-8 flex justify-between items-center z-20 shrink-0">
+      <div>
+        <h3 id="modalTitle" class="text-xl font-black text-slate-800 flex items-center"><i class="fas fa-id-badge text-indigo-500 mr-3 text-2xl"></i> Form Majelis</h3>
+        <p class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Lengkapi informasi personil majelis</p>
+      </div>
+      <button onclick="closeModal('modalForm')" class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition-colors"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <!-- Body Form -->
+    <form id="formInputMajelis" onsubmit="handleSimpan(event, 'majelis')" class="flex-1 overflow-y-auto p-6 md:p-8 space-y-5 bg-slate-50/50 custom-scrollbar">
+      <input type="hidden" name="ID_Majelis" id="m_id">
+      
+      <div class="space-y-1.5">
+          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nama Lengkap <span class="text-indigo-500 normal-case font-bold ml-1 text-[9px]">(Gunakan titik koma ";" jika banyak)</span></label>
+          <div class="relative">
+              <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" name="Nama_Lengkap" id="m_nama" placeholder="Contoh: Pdt. Andi; Budi; Citra" required autocomplete="off" autocorrect="off" spellcheck="false" class="w-full py-3.5 pl-11 pr-4 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm text-slate-700 transition-all shadow-sm">
+          </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="space-y-1.5 flex flex-col justify-end">
+              <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Jabatan</label>
+              <select name="Jabatan" id="formJabatan" required class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none text-sm font-bold text-slate-700 shadow-sm"></select>
+          </div>
+          <div class="space-y-1.5 flex flex-col justify-end">
+              <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Wilayah</label>
+              <select name="Wilayah" id="formWilayah" onchange="syncFormResortMajelis()" required class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm text-slate-700 transition-all shadow-sm"></select>
+          </div>
+      </div>
+
+      <div class="space-y-1.5">
+          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Resort / Jemaat Khusus</label>
+          <select name="Resort" id="formResort" onchange="syncFormGerejaMajelis()" required class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm text-slate-700 transition-all shadow-sm"></select>
+      </div>
+      
+      <div class="space-y-1.5" id="wadahGereja">
+          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Unit Nama Gereja</label>
+          <select name="Nama_Gereja" id="formGereja" required class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm text-slate-700 transition-all shadow-sm"></select>
+      </div>
+      
+      <div class="space-y-1.5">
+          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nomor WhatsApp <span class="text-emerald-500 font-bold normal-case text-[9px]">(Bisa pisah dgn ;)</span></label>
+          <div class="relative">
+              <i class="fab fa-whatsapp absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 text-lg"></i>
+              <input type="text" name="No_HP" id="m_hp" placeholder="Contoh: 0811; 0822" autocomplete="off" class="w-full py-3.5 pl-11 pr-4 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-sm text-slate-700 transition-all shadow-sm">
+          </div>
+      </div>
+      
+      <div class="pt-4 mt-2">
+          <!-- Tombol Simpan Beranimasi Premium -->
+          <button type="submit" id="btnSubmit" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-[0_8px_20px_-6px_rgba(79,70,229,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(79,70,229,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2">
+              <i class="fas fa-cloud-upload-alt text-base"></i> Simpan Personil
+          </button>
+      </div>
+    </form>
+  </div>
+</div>
+  
+<!-- MODAL FORM MAJELIS MULTI (FIXED SCROLL & EYE-FRIENDLY) -->
+<div id="modalFormMulti" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4 sm:p-6">
+  
+  <!-- KUNCI 1: max-h-[90vh] dan overflow-hidden mengunci form agar tidak menabrak batas layar -->
+  <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden relative animate-zoom">
+    
+    <!-- Header Modal (Dikunci dengan shrink-0 agar tidak ikut tergulung) -->
+    <div class="px-5 py-4 flex justify-between items-center border-b border-slate-100 shrink-0 bg-white z-10">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+          <i class="fas fa-users text-sm"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-800">Input Multi Personil</h3>
+          <p class="text-[10px] text-slate-400">Tambah data majelis massal.</p>
+        </div>
+      </div>
+      <button onclick="closeModal('modalFormMulti')" class="text-slate-400 hover:text-rose-500 transition-colors"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <!-- Form Body (Area Scroll) -->
+    <!-- KUNCI 2: flex-1, min-h-0, dan overflow-y-auto memaksa bagian ini saja yang punya scrollbar -->
+    <form id="formMultiMajelis" onsubmit="simpanMultiMajelis(event)" class="flex-1 min-h-0 overflow-y-auto p-5 bg-slate-50/50 custom-scrollbar flex flex-col gap-4">
+        
+        <!-- Kartu 1: Basic Information -->
+        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm shrink-0">
+            <h4 class="text-[10px] font-bold text-slate-800 mb-3 uppercase tracking-wider">Informasi Wilayah</h4>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 mb-1 block">Wilayah*</label>
+                    <select id="mul_wilayah" onchange="syncResortMulti()" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-blue-500 bg-slate-50/50"></select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 mb-1 block">Resort / JK*</label>
+                    <select id="mul_resort" onchange="syncGerejaMulti()" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-blue-500 bg-slate-50/50"></select>
+                </div>
+                <div class="col-span-2" id="wadahGerejaMulti">
+                    <label class="text-[10px] font-semibold text-slate-500 mb-1 block">Nama Gereja*</label>
+                    <select id="mul_gereja" onchange="updateJabatanOptionsModal('mul')" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-blue-500 bg-slate-50/50"></select>
+                </div>
+            </div>
+        </div>
+
+       <!-- Bagian 2: Daftar Personil -->
+        <div class="shrink-0">
+            <div class="mb-2 px-1">
+                <h4 class="text-[10px] font-bold text-slate-800 uppercase tracking-wider">Daftar Personil</h4>
+            </div>
+            <!-- Wadah Baris Dinamis -->
+            <div id="wadahPersonilMulti" class="space-y-3 pb-4"></div>
+        </div>
+        
+        <input type="file" id="inputScanSK" accept="image/*" class="hidden" onchange="prosesScanSK(event)">
+    </form>
+
+    <!-- Footer Action Buttons -->
+    <div class="px-5 py-3 border-t border-slate-100 bg-white shrink-0 z-10 flex justify-between items-center">
+        <!-- Tombol Scan SK dan Tambah Baris kini berdampingan di kiri bawah -->
+        <div class="flex gap-2">
+            <button type="button" onclick="document.getElementById('inputScanSK').click()" class="text-[10px] font-semibold text-slate-500 hover:text-blue-600 flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:border-blue-100 bg-white shadow-sm transition-colors"><i class="fas fa-camera text-slate-400"></i> Scan SK</button>
+            <button type="button" onclick="tambahBarisPersonil()" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors"><i class="fas fa-plus"></i> Tambah Personil</button>
+        </div>
+        <div class="flex gap-2">
+            <button type="button" onclick="closeModal('modalFormMulti')" class="px-5 py-2 rounded-full text-xs font-semibold text-slate-500 hover:bg-slate-100 transition-colors">Batal</button>
+         <button type="submit" form="formMultiMajelis" id="btnSubmitMulti" style="background-color: #2563eb; color: #ffffff;" class="px-7 py-2 rounded-full text-xs font-bold hover:opacity-90 shadow-md shadow-blue-500/20 transition-opacity">Simpan</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL PROFIL -->
+<div id="modalProfil" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden relative animate-zoom">
+    <div class="bg-gradient-to-r from-indigo-600 to-blue-600 h-32 w-full relative"><button onclick="tutupProfil()" class="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center transition"><i class="fas fa-times"></i></button></div>
+    <div class="px-8 pb-8 pt-0 relative bg-white flex flex-col items-center">
+       <div class="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center text-indigo-600 text-4xl font-bold absolute -top-12 left-1/2 transform -translate-x-1/2 border-4 border-white"><i class="fas fa-user-tie"></i></div>
+       <div class="mt-16 text-center w-full"><h3 id="profNama" class="text-xl font-black text-slate-800 leading-tight">Nama Lengkap</h3><div class="mt-2"><span id="profJabatan" class="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-4 py-1.5 rounded-lg uppercase tracking-widest border border-indigo-100 inline-block">Jabatan</span></div></div>
+       <div class="mt-8 space-y-3 w-full text-left">
+         <div class="flex items-center gap-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-100"><div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0"><i class="fas fa-church"></i></div><div class="overflow-hidden"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Penempatan Unit</p><p id="profGereja" class="text-sm font-bold text-slate-700 truncate">Gereja</p></div></div>
+         <div class="flex items-center gap-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-100"><div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shrink-0"><i class="fas fa-map-marker-alt"></i></div><div class="overflow-hidden"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Resort / Wilayah</p><p id="profWilayah" class="text-sm font-bold text-slate-700 truncate">Resort</p></div></div>
+         <div class="flex items-center gap-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-100"><div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0"><i class="fab fa-whatsapp text-lg"></i></div><div class="overflow-hidden"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">WhatsApp Aktif</p><p id="profWA" class="text-sm font-bold text-slate-700 truncate">08123</p></div></div>
+         <div class="flex items-center gap-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-100"><div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0"><i class="fas fa-id-card"></i></div><div class="overflow-hidden"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">ID Sistem (UID)</p><p id="profID" class="text-sm font-bold text-slate-700 truncate">ID</p></div></div>
+       </div>
+       <div class="mt-6 pt-6 border-t border-slate-100 w-full"><a id="btnChatProf" href="#" target="_blank" class="w-full py-4 bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white rounded-xl font-bold text-xs uppercase tracking-widest text-center transition-colors flex justify-center items-center gap-2"><i class="fab fa-whatsapp text-base"></i> Hubungi Personil</a></div>
+    </div>
+  </div>
+</div>
+
+ <!-- MODAL DETAIL KEKURANGAN WILAYAH -->
+<div id="modalDetailWilayah" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[120] flex items-center justify-center p-4 md:p-6">
+  <div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] relative animate-zoom border border-slate-100">
+    <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white z-10 shrink-0">
+      <div>
+          <h3 id="titleDetailWilayah" class="text-xl font-black text-slate-800 flex items-center"><i class="fas fa-exclamation-circle text-rose-500 mr-3 text-2xl"></i> Unit Kurang Data</h3>
+          <p class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Daftar unit dengan personil di bawah 5 orang</p>
+      </div>
+      <button onclick="closeModal('modalDetailWilayah')" class="w-8 h-8 flex items-center justify-center bg-slate-50 text-slate-400 rounded-full hover:bg-rose-50 hover:text-rose-500 transition-colors"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50/50 custom-scrollbar">
+        <div id="listDetailWilayah" class="space-y-3">
+            <!-- Daftar gereja yang kurang data akan muncul di sini -->
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT CETAK PDF LAMA YANG ELEGAN -->
+<div id="modalPdfPreview" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[80] flex flex-col items-center p-4 md:p-8">
+  <div class="w-full max-w-[800px] flex justify-between items-center bg-white rounded-t-2xl px-6 py-4 shadow-md">
+    <h3 class="text-lg font-bold text-slate-800"><i class="fas fa-search mr-2 text-indigo-500"></i> Preview Laporan PDF</h3>
+    <div class="flex gap-2"><button onclick="closePdfPreview()" class="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg text-xs font-bold uppercase transition-colors">Batal</button><button onclick="executePdfDownload()" class="px-4 py-2 bg-rose-600 text-white hover:bg-rose-700 rounded-lg text-xs font-bold uppercase shadow-md flex items-center gap-2 transition-colors"><i class="fas fa-download"></i> Unduh PDF</button></div>
+  </div>
+  <div class="w-full max-w-[800px] bg-white overflow-y-auto rounded-b-2xl shadow-2xl flex-1 p-8 no-scrollbar" style="max-height: 85vh;">
+    <div id="pdfDocumentArea" class="bg-white text-slate-800 p-2" style="font-family: Arial, sans-serif;">
+      <div class="flex justify-between items-center border-b-4 border-slate-800 pb-4 mb-6">
+        <div class="flex items-center gap-4"><div class="w-16 h-16 bg-slate-800 text-white rounded-xl flex items-center justify-center text-3xl shadow-md"><i class="fas fa-church"></i></div><div><h1 class="font-black text-2xl tracking-tight text-slate-900 leading-none">SINODE GKPI</h1><p class="text-xs font-bold text-slate-500 tracking-widest mt-1">SISTEM INFORMASI MAJELIS PUSAT</p></div></div>
+        <div class="text-right"><h2 class="text-lg font-bold text-indigo-600 uppercase">Laporan Statistik</h2><p id="previewDate" class="text-xs text-slate-500 mt-1 font-semibold"></p></div>
+      </div>
+      <h3 class="text-sm font-bold bg-slate-100 p-2 border-l-4 border-indigo-500 mb-4 uppercase">1. Ringkasan Global</h3>
+      <div class="grid grid-cols-4 gap-4 mb-8">
+        <div class="border border-slate-200 p-4 rounded-xl text-center bg-slate-50"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Unit Gereja</p><p id="pdfTotalGereja" class="text-3xl font-black text-slate-800 mt-1">0</p></div>
+        <div class="border border-slate-200 p-4 rounded-xl text-center bg-slate-50"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Personil Majelis</p><p id="pdfTotalMajelis" class="text-3xl font-black text-slate-800 mt-1">0</p></div>
+        <div class="border border-slate-200 p-4 rounded-xl text-center bg-slate-50"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total RT</p><p id="pdfTotalKK" class="text-3xl font-black text-slate-800 mt-1">0</p></div>
+        <div class="border border-slate-200 p-4 rounded-xl text-center bg-slate-50"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Jiwa</p><p id="pdfTotalJiwa" class="text-3xl font-black text-slate-800 mt-1">0</p></div>
+      </div>
+      <h3 class="text-sm font-bold bg-slate-100 p-2 border-l-4 border-indigo-500 mb-4 uppercase">2. Visualisasi Data</h3>
+      <div class="grid grid-cols-2 gap-6 mb-8"><div class="border border-slate-200 p-4 rounded-xl text-center"><p class="text-xs font-bold text-slate-600 mb-4">Distribusi Wilayah</p><img id="prevChartW" src="" alt="Chart Wilayah" class="max-h-[200px] object-contain mx-auto"></div><div class="border border-slate-200 p-4 rounded-xl text-center"><p class="text-xs font-bold text-slate-600 mb-4">Persentase Jabatan</p><img id="prevChartJ" src="" alt="Chart Jabatan" class="max-h-[200px] object-contain mx-auto"></div></div>
+      <h3 class="text-sm font-bold bg-slate-100 p-2 border-l-4 border-indigo-500 mb-4 uppercase">3. Rincian Jabatan Majelis</h3><table class="w-full text-left border-collapse border border-slate-200 text-sm mb-6"><thead class="bg-slate-100"><tr><th class="border border-slate-200 p-3 font-bold text-slate-700">Nama Jabatan</th><th class="border border-slate-200 p-3 font-bold text-slate-700 text-center w-32">Total Personil</th></tr></thead><tbody id="prevJobTableBody"></tbody></table>
+      <h3 class="text-sm font-bold bg-slate-100 p-2 border-l-4 border-indigo-500 mb-4 uppercase">4. Rincian Per Wilayah</h3><table class="w-full text-left border-collapse border border-slate-200 text-sm"><thead class="bg-slate-100"><tr><th class="border border-slate-200 p-3 font-bold text-slate-700">Wilayah</th><th class="border border-slate-200 p-3 font-bold text-slate-700 text-center">Gereja</th><th class="border border-slate-200 p-3 font-bold text-slate-700 text-center">RT</th><th class="border border-slate-200 p-3 font-bold text-slate-700 text-center">Jiwa</th></tr></thead><tbody id="prevWilayahTableBody"></tbody></table>
+      <div class="mt-12 text-center border-t border-slate-200 pt-4"><p class="text-[10px] text-slate-400 font-medium">Dokumen ini digenerate secara otomatis oleh GKPI Data Hub.</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="modalCetakData" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[80] flex flex-col items-center p-4 md:p-8">
+  <div class="w-full max-w-[1000px] flex justify-between items-center bg-white rounded-t-2xl px-6 py-4 shadow-md">
+    <h3 class="text-lg font-bold text-slate-800"><i class="fas fa-print mr-2 text-rose-600"></i> Preview Cetak Dokumen</h3>
+    <div class="flex gap-2"><button onclick="tutupPreviewCetakData()" class="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg text-xs font-bold uppercase transition-colors">Batal</button><button onclick="eksekusiCetakTabelPDF()" class="px-4 py-2 bg-rose-600 text-white hover:bg-rose-700 rounded-lg text-xs font-bold uppercase shadow-md flex items-center gap-2 transition-colors"><i class="fas fa-download"></i> Unduh PDF</button></div>
+  </div>
+  <div class="w-full max-w-[1000px] bg-white overflow-y-auto rounded-b-2xl shadow-2xl flex-1 p-8 no-scrollbar" style="max-height: 85vh;">
+    <div id="areaCetakDokumen" class="bg-white text-slate-800 p-4" style="font-family: Arial, sans-serif;">
+      <div style="display: flex; align-items: center; border-bottom: 3px solid #1e293b; padding-bottom: 15px; margin-bottom: 20px;">
+       <img src="https://lh3.googleusercontent.com/d/1g-FutTprQkPGFSZ94neWMBLWKJEkpGfF" decoding="async" style="width: 70px; height: 70px; margin-right: 20px;" crossorigin="anonymous">
+        <div style="flex-grow: 1;"><h1 style="font-size: 24px; font-weight: 900; margin: 0; color: #0f172a; text-transform: uppercase;">SINODE GEREJA KRISTEN PROTESTAN INDONESIA</h1><p style="font-size: 12px; font-weight: 700; margin: 5px 0 0 0; color: #64748b; letter-spacing: 1px;">SISTEM INFORMASI PUSAT GKPI</p></div>
+        <div style="text-align: right;"><h2 id="judulCetakPdf" style="font-size: 16px; font-weight: bold; color: #e11d48; margin: 0; text-transform: uppercase;">Daftar Data</h2><p id="tglCetakPdf" style="font-size: 10px; color: #64748b; margin: 5px 0 0 0;"></p></div>
+      </div>
+      <div style="background-color: #f8fafc; padding: 10px 15px; border-left: 4px solid #e11d48; margin-bottom: 20px; font-size: 11px;"><p style="margin: 0; font-weight: bold; color: #334155; margin-bottom: 5px;">Parameter Filter Data:</p><div id="infoFilterCetak" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; color: #475569;"></div></div>
+      <table style="width: 100%; border-collapse: collapse; font-size: 10px;"><thead id="headTabelCetak" style="background-color: #f1f5f9; text-align: left; color: #334155;"></thead><tbody id="bodyTabelCetak"></tbody></table>
+      <div style="margin-top: 30px; border-top: 1px dashed #cbd5e1; padding-top: 10px; font-size: 9px; color: #94a3b8; text-align: center;"><p style="margin: 0;">Dokumen ini digenerate secara otomatis oleh GKPI Data Hub.</p></div>
+    </div>
+  </div>
+</div>
+<!-- MODAL EDIT DATA GEREJA (SMART CASCADE) -->
+<div id="modalFormGereja" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-y-auto max-h-[95vh] relative animate-zoom">
+    <div class="sticky top-0 bg-white/90 backdrop-blur border-b border-slate-100 px-8 py-6 flex justify-between items-center z-10">
+      <div>
+        <h3 class="text-xl font-extrabold text-slate-800 flex items-center"><i class="fas fa-church text-indigo-500 mr-2"></i> Edit Data Unit</h3>
+        <p id="g_nama_title" class="text-xs text-slate-500 font-medium mt-1">Nama Gereja</p>
+      </div>
+      <button onclick="closeModal('modalFormGereja')" class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition-colors"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="formEditGereja" onsubmit="handleSimpanGereja(event)" class="p-8 space-y-5">
+      <input type="hidden" name="Nama_Gereja_Lama" id="g_nama_lama">
+      
+      <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-4">
+          <label class="text-[11px] font-bold text-indigo-500 uppercase mb-1 block">Ubah Nama Unit / Gereja</label>
+          <input type="text" name="Nama_Gereja_Baru" id="g_nama_baru" required class="w-full p-3 rounded-lg bg-white border border-indigo-200 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm text-slate-800 shadow-sm">
+      </div>
+
+      <div class="grid grid-cols-2 gap-5 border-b border-slate-100 pb-5">
+          <div class="space-y-1.5">
+              <label class="text-[11px] font-bold text-slate-500 uppercase">Status Unit</label>
+              <select name="Status_Gereja" id="g_status" onchange="toggleResortIndukEdit()" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-bold text-sm transition-all cursor-pointer">
+                  <option value="Pagaran">Pagaran</option>
+                  <option value="Resort">Resort</option>
+                  <option value="Jemaat Khusus">Jemaat Khusus</option>
+              </select>
+          </div>
+          <div class="space-y-1.5" id="wadahResortIndukEdit">
+              <label class="text-[11px] font-bold text-slate-500 uppercase">Induk Resort</label>
+              <select name="Induk_Resort" id="g_induk_resort" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-bold text-sm transition-all cursor-pointer">
+                  <!-- Diisi oleh JS -->
+              </select>
+          </div>
+      </div>
+      
+      <div class="grid grid-cols-2 gap-5 mt-2">
+        <div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Total RT</label><input type="number" name="Total_RT" id="g_rt" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm transition-all"></div>
+        <div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Total Jiwa</label><input type="number" name="Total_Jiwa" id="g_jiwa" required class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm transition-all"></div>
+      </div>
+      
+      <div class="grid grid-cols-2 gap-5">
+        <div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Latitude</label><input type="text" name="Latitude" id="g_lat" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm transition-all"></div>
+        <div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Longitude</label><input type="text" name="Longitude" id="g_lng" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm transition-all"></div>
+      </div>
+      
+      <div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">No Register</label><input type="text" name="No_Register" id="g_reg" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm transition-all"></div>
+      <div class="space-y-1.5"><label class="text-[11px] font-bold text-slate-500 uppercase">Tanggal Berdiri</label><input type="date" name="Tanggal_Berdiri" id="g_tgl" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 font-semibold text-sm transition-all"></div>
+      
+      <div class="pt-4">
+          <button type="submit" id="btnEditGereja" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-indigo-700 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2">
+              <i class="fas fa-sync-alt"></i> Sinkronisasi & Perbarui Data
+          </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ========================================== -->
+<!-- MODAL DETAIL STRUKTUR UNIT (FINAL & SEMPURNA) -->
+<!-- ========================================== -->
+<div id="modalStrukturUnit" class="fixed inset-0 hidden flex items-center justify-center p-4 md:p-8" style="position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background-color: rgba(15, 23, 42, 0.8) !important; backdrop-filter: blur(4px); z-index: 100 !important; margin: 0 !important;">
+    
+    <!-- KOTAK PUTIH UTAMA (Lebar 4xl, Tinggi 75vh, Tambahan Margin Atas mt-10) -->
+    <div class="bg-white w-full max-w-4xl rounded-[2rem] shadow-2xl flex flex-col relative animate-zoom border border-slate-200 mt-6 md:mt-10" style="max-height: 75vh !important; overflow: hidden !important;">
+        
+        <!-- HEADER MODAL -->
+        <div id="headerModalStruktur" class="px-6 py-6 flex flex-col md:flex-row justify-between items-center text-white z-20 shrink-0 shadow-md">
+            <!-- Header akan diisi otomatis oleh Javascript -->
+        </div>
+        
+        <!-- BODY MODAL -->
+        <div class="p-6 md:p-8 bg-slate-50/50 relative z-0 custom-scrollbar w-full flex-1" id="bodyModalStruktur" style="overflow-y: auto !important;">
+            <!-- Konten PHR & Pagaran akan diisi otomatis -->
+        </div>
+        
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL UPDATE: WHATSAPP BLAST DENGAN FILTER -->
+<!-- ========================================== -->
+<div id="modalBlastFonte" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-[90] flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl relative animate-zoom overflow-hidden">
+    <div class="px-8 py-6 flex justify-between items-center bg-gradient-to-r from-amber-500 to-orange-500 text-white"><div><h3 class="text-xl font-extrabold flex items-center gap-2"><i class="fas fa-bullhorn"></i> WhatsApp Blast</h3></div><button onclick="closeBlastModal()" class="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40 transition-colors"><i class="fas fa-times"></i></button></div>
+    <div class="p-8 space-y-5">
+      <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-center justify-between mb-2"><span class="text-xs font-bold text-amber-700 uppercase">Target Pengiriman</span><span class="px-3 py-1 bg-white rounded-full text-amber-600 font-black text-sm shadow-sm"><span id="countPenerima">0</span> Personil</span></div>
+      
+      <!-- Filter Mandiri Blast WA -->
+      <div class="grid grid-cols-2 gap-3 pb-3 border-b border-slate-100">
+          <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Filter Wilayah</label><select id="blastOptWilayah" onchange="hitungTargetBlast()" class="w-full p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-bold outline-none focus:border-amber-400"></select></div>
+          <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Filter Jabatan</label><select id="blastOptJabatan" onchange="hitungTargetBlast()" class="w-full p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-bold outline-none focus:border-amber-400"></select></div>
+      </div>
+
+      <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Isi Pesan WA</label><textarea id="pesanFonte" rows="4" class="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 outline-none text-sm font-medium focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all leading-relaxed" placeholder="Halo Bpk/Ibu {nama}..."></textarea></div>
+      <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Lampirkan Dokumen (Opsional)</label><input type="file" id="fileBlast" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"></div>
+      <button onclick="kirimBlastSekarang()" id="btnEksekusiBlast" class="w-full bg-slate-800 text-white p-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-slate-900 hover:-translate-y-0.5 active:scale-95 transition-all mt-2"><i class="fab fa-whatsapp mr-2"></i> Eksekusi Pengiriman</button>
+    </div>
+  </div>
+</div>
+<!-- ========================================== -->
+        <!-- HALAMAN BRANKAS ASET (VIRTUAL DATA ROOM)   -->
+        <!-- ========================================== -->
+        <div id="pageBrankas" class="hidden space-y-6 animate-fade flex-1 flex flex-col relative z-0">
+          
+          <!-- Header Brankas (Tema Eksklusif Gelap) -->
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900 p-6 md:p-8 rounded-3xl shadow-2xl border border-slate-700 relative overflow-hidden">
+             <!-- Ornamen Garis Keamanan -->
+             <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+             <div class="absolute -right-10 -top-10 text-amber-500/10 text-9xl"><i class="fas fa-vault"></i></div>
+             
+             <div class="relative z-10 w-full md:w-auto text-center md:text-left">
+                <span class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full text-[9px] font-black uppercase tracking-widest mb-3 inline-block">Terverifikasi & Terenkripsi</span>
+                <h2 class="text-2xl md:text-3xl font-black flex items-center justify-center md:justify-start text-white tracking-tight"><i class="fas fa-shield-alt text-amber-400 mr-3"></i> Brankas Aset Pusat</h2>
+                <p class="text-xs text-slate-400 mt-1.5 font-medium tracking-wider">Akses VVIP: Sertifikat Tanah, IMB, BPKB Kendaraan, dan Aset Finansial.</p>
+             </div>
+             
+             <div class="relative z-10 flex w-full md:w-auto gap-3">
+                <button onclick="bukaModalUploadArsip('BRANKAS')" class="flex-1 md:flex-none bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-plus-circle text-sm"></i> Tambah Aset
+                </button>
+                <button onclick="switchTab('home')" class="w-12 h-12 flex items-center justify-center bg-white/10 text-white hover:bg-rose-500 rounded-xl transition-all shadow-sm" title="Kunci Kembali">
+                    <i class="fas fa-lock"></i>
+                </button>
+             </div>
+          </div>
+
+          <!-- Statistik Ringkas -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center hover:border-amber-300 transition-colors cursor-pointer"><div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl mb-2"><i class="fas fa-map"></i></div><h4 class="text-xl font-black text-slate-800" id="statSertifikat">0</h4><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Sertifikat Tanah</p></div>
+             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center hover:border-amber-300 transition-colors cursor-pointer"><div class="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-xl mb-2"><i class="fas fa-building"></i></div><h4 class="text-xl font-black text-slate-800" id="statGedung">0</h4><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">IMB & Gedung</p></div>
+             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center hover:border-amber-300 transition-colors cursor-pointer"><div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center text-xl mb-2"><i class="fas fa-car"></i></div><h4 class="text-xl font-black text-slate-800" id="statKendaraan">0</h4><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">BPKB Kendaraan</p></div>
+             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center hover:border-amber-300 transition-colors cursor-pointer"><div class="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center text-xl mb-2"><i class="fas fa-file-invoice-dollar"></i></div><h4 class="text-xl font-black text-slate-800" id="statFinansial">0</h4><p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Aset Finansial</p></div>
+          </div>
+
+          <!-- Rak Penyimpanan Aset -->
+          <div class="bg-white p-6 md:p-8 rounded-3xl soft-shadow border border-slate-100 flex-1 flex flex-col">
+              <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                  <h3 class="text-sm font-bold text-slate-700 flex items-center"><i class="fas fa-boxes text-amber-500 mr-2"></i> Inventaris Master Aset</h3>
+                  <div class="relative w-48"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" placeholder="Cari Aset..." class="w-full py-2 pl-8 pr-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:border-amber-400"></div>
+              </div>
+              <div class="overflow-y-auto custom-scrollbar flex-1 pb-4">
+                  <div id="gridBrankasAset" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 content-start">
+                      <!-- File Aset akan muncul di sini via Javascript -->
+                  </div>
+              </div>
+          </div>
+        </div>
+        
+<!-- MODAL PREVIEW E-ARSIP (LIGHTBOX AMAN) -->
+<div id="modalPreviewArsip" class="fixed inset-0 bg-slate-900/95 backdrop-blur-md hidden z-[120] flex items-center justify-center p-4 md:p-8">
+    <button onclick="closeModal('modalPreviewArsip')" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-white/10 rounded-full text-white hover:bg-rose-500 transition-colors z-20"><i class="fas fa-times text-xl"></i></button>
+    
+    <div class="w-full max-w-4xl flex flex-col items-center animate-zoom h-full justify-center">
+        <!-- Area Bingkai Preview (Menggunakan iframe agar bisa baca PDF & Gambar) -->
+        <div class="w-full h-[65vh] bg-slate-800 rounded-2xl shadow-2xl mb-4 overflow-hidden relative border border-white/10">
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 z-0">
+                <i class="fas fa-circle-notch fa-spin text-4xl mb-3"></i>
+                <p class="text-xs font-bold tracking-widest uppercase">Memuat Dokumen...</p>
+            </div>
+            <iframe id="iframeArsipPreview" src="" class="w-full h-full relative z-10 border-0 bg-white"></iframe>
+        </div>
+        
+        <!-- Area Keterangan & Tombol Kunci -->
+        <div class="bg-white/10 backdrop-blur border border-white/20 p-5 rounded-2xl w-full text-center text-white shrink-0 shadow-lg">
+            <h3 id="previewArsipTitle" class="text-lg font-black mb-1 drop-shadow-md">Judul Dokumen</h3>
+            <p id="previewArsipMeta" class="text-[10px] font-bold text-white/70 uppercase tracking-widest">Kategori • Diunggah pada: Tanggal</p>
+            <div class="mt-4 flex justify-center gap-3">
+                <button onclick="downloadAman()" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 flex items-center gap-2">
+                    <i class="fas fa-lock"></i> Unduh Terenkripsi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL ISI FOLDER ARSIP (Saat Rak Diklik) -->
+<div id="modalFolderArsip" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[100] flex flex-col items-center justify-center p-4 md:p-8">
+    <div class="bg-white w-full max-w-5xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] relative animate-zoom border border-slate-100">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-6 flex justify-between items-center text-white shrink-0 z-10 shadow-md">
+            <div>
+                <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-2 inline-block shadow-sm">Rak Dokumen Resort</span>
+                <h3 id="judulFolderResort" class="text-2xl font-black flex items-center drop-shadow-md"><i class="fas fa-folder-open mr-3 opacity-90"></i> Nama Resort</h3>
+            </div>
+            <button onclick="closeModal('modalFolderArsip')" class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full hover:bg-rose-500 transition-colors text-white"><i class="fas fa-times text-lg"></i></button>
+        </div>
+        
+        <div class="flex-1 p-6 md:p-8 bg-slate-50/50 overflow-y-auto custom-scrollbar">
+            <!-- Navigasi Tab Kategori Dokumen -->
+            <div class="flex gap-2 overflow-x-auto pb-4 mb-6 border-b border-slate-200 custom-scrollbar">
+                <button class="px-5 py-2.5 bg-white text-amber-600 border-2 border-amber-500 rounded-xl text-xs font-black uppercase tracking-widest whitespace-nowrap shadow-sm"><i class="fas fa-layer-group mr-2"></i>Semua</button>
+                <button class="px-5 py-2.5 bg-slate-50 text-slate-500 border border-slate-200 hover:bg-white rounded-xl text-xs font-bold uppercase tracking-widest whitespace-nowrap shadow-sm"><i class="fas fa-file-signature mr-2 text-blue-400"></i>SK & Legal</button>
+                <button class="px-5 py-2.5 bg-slate-50 text-slate-500 border border-slate-200 hover:bg-white rounded-xl text-xs font-bold uppercase tracking-widest whitespace-nowrap shadow-sm"><i class="fas fa-map mr-2 text-emerald-400"></i>Surat Tanah</button>
+                <button class="px-5 py-2.5 bg-slate-50 text-slate-500 border border-slate-200 hover:bg-white rounded-xl text-xs font-bold uppercase tracking-widest whitespace-nowrap shadow-sm"><i class="fas fa-building mr-2 text-indigo-400"></i>IMB/Izin Bangunan</button>
+            </div>
+            
+            <!-- Isi Dokumen -->
+            <div id="isiDokumenContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Javascript akan mengisi dokumen di sini -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL FORM UPLOAD ARSIP (PINTAR 2-IN-1) -->
+<div id="modalUploadArsip" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[110] flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-3xl rounded-[2rem] shadow-2xl overflow-hidden relative animate-zoom">
+        <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white z-10">
+            <div>
+                <h3 id="modalTitleArsip" class="text-xl font-extrabold text-slate-800 flex items-center"><i class="fas fa-cloud-upload-alt text-amber-500 mr-2"></i> Unggah Dokumen Baru</h3>
+                <p id="modalSubtitleArsip" class="text-[11px] text-slate-400 font-bold mt-1 uppercase tracking-widest">Pilih penempatan wilayah, resort & kategori</p>
+            </div>
+            <button onclick="closeModal('modalUploadArsip')" class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-600 transition-colors"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <form onsubmit="simpanDokumenArsip(event)" class="p-8 space-y-5 bg-slate-50/50">
+            <input type="hidden" id="modeUploadArsip" value="">
+
+            <!-- Area Upload File -->
+            <div class="border-2 border-dashed border-slate-300 rounded-2xl bg-white hover:bg-amber-50 hover:border-amber-300 transition-all p-6 text-center cursor-pointer group mb-2" onclick="document.getElementById('fileUploadArsipBaru').click()">
+                <div class="w-14 h-14 bg-slate-50 rounded-full shadow-inner flex items-center justify-center text-slate-400 group-hover:text-amber-500 mx-auto mb-3 transition-colors"><i class="fas fa-file-upload text-2xl"></i></div>
+                <p class="text-sm font-bold text-slate-600" id="labelUploadArsip">Klik atau Tarik dokumen ke sini</p>
+                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Maksimal 5MB (JPG, PNG, PDF)</p>
+                <input type="file" id="fileUploadArsipBaru" class="hidden" accept=".jpg,.jpeg,.png,.pdf" onchange="previewUploadArsip(event)">
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 border-b border-slate-200 pb-5">
+                <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Judul Dokumen / Aset</label><input type="text" id="arsipJudulBaru" required class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500 text-sm font-bold text-slate-700 shadow-sm" placeholder="Contoh: Sertifikat Tanah Pusat / SK..."></div>
+                <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">Kategori</label><select id="arsipKategoriBaru" required class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500 text-sm font-bold text-slate-700 shadow-sm"><option value="Surat Keputusan (SK)">Surat Keputusan (SK)</option><option value="Sertifikat Tanah">Sertifikat Tanah</option><option value="BPKB / Kendaraan">BPKB / Kendaraan</option><option value="IMB / Izin Bangunan">IMB / Izin Bangunan</option><option value="Laporan Keuangan">Laporan Keuangan</option><option value="Lainnya">Lainnya</option></select></div>
+            </div>
+
+            <!-- MODE 1: LOKASI PENYIMPANAN ARSIP BERSARANG (KHUSUS E-ARSIP) -->
+            <div id="areaLokasiArsip" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">1. Pilih Wilayah</label><select id="arsipWilayah" onchange="syncArsipResort()" class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500 text-sm font-bold text-slate-700 shadow-sm"></select></div>
+                <div class="space-y-1.5"><label class="text-[10px] font-bold text-slate-500 uppercase">2. Resort / JK</label><select id="arsipResort" onchange="syncArsipGereja()" class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500 text-sm font-bold text-slate-700 shadow-sm"></select></div>
+                <div class="space-y-1.5" id="wadahArsipGereja"><label class="text-[10px] font-bold text-slate-500 uppercase">3. Unit Gereja</label><select id="arsipGerejaTarget" class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500 text-sm font-bold text-slate-700 shadow-sm"></select></div>
+            </div>
+
+            <!-- MODE 2: KETERANGAN ASET (KHUSUS BRANKAS) -->
+            <div id="areaKeteranganAset" class="hidden space-y-1.5">
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Keterangan / Detail Aset (Opsional)</label>
+                <textarea id="arsipKeteranganAset" rows="3" class="w-full p-3.5 rounded-xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-amber-500 text-sm font-semibold text-slate-700 shadow-sm" placeholder="Contoh: Lokasi aset di Jl. Sudirman, Luas 500m2, atas nama Sinode..."></textarea>
+            </div>
+
+            <button type="submit" id="btnSimpanArsip" class="w-full bg-slate-800 text-white p-4 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg hover:bg-slate-900 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4"><i class="fas fa-cloud-upload-alt text-sm"></i> Mulai Unggah ke Drive</button>
+        </form>
+    </div>
+</div>
+             <!-- ========================================== -->
+<!-- MODAL TENTANG APLIKASI (ABOUT APP)         -->
+<!-- ========================================== -->
+<div id="modalAboutApp" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[99999] flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden relative animate-zoom border border-slate-100 text-center">
+        <!-- Background Header -->
+        <div class="h-28 bg-gradient-to-r from-indigo-600 to-blue-600 relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+            <button onclick="closeModal('modalAboutApp')" class="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center transition z-10"><i class="fas fa-times"></i></button>
+            <!-- Logo App Melayang -->
+            <div class="absolute -bottom-10 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-white rounded-2xl shadow-lg border-4 border-white flex items-center justify-center p-2 z-10">
+        <img src="logo-gkpi.png" alt="Logo GKPI" fetchpriority="high" decoding="async" class="w-full h-full object-contain">
+            </div>
+        </div>
+        
+        <!-- Konten Detail -->
+        <div class="pt-14 pb-8 px-6 bg-white">
+            <h3 class="text-xl font-black text-slate-800 tracking-tight">GKPI Data Hub</h3>
+            <span class="inline-block mt-1.5 px-3 py-1 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase tracking-widest rounded-full border border-indigo-100 shadow-sm">Versi 3.5.0 (Enterprise Build)</span>
+            
+            <p class="text-[11px] text-slate-500 mt-4 leading-relaxed font-semibold">
+                Sistem Informasi Manajemen Terpadu untuk pengelolaan basis data Majelis, Unit Gereja, dan Direktori Jemaat Sinode GKPI.
+            </p>
+            
+            <div class="mt-6 pt-5 border-t border-slate-100 text-left space-y-3.5">
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 shadow-inner shrink-0"><i class="fas fa-code text-sm"></i></div>
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Lead Developer</p>
+                        <p class="text-xs font-bold text-slate-800">Dio Very Hutabarat, S.Kom</p>
+                    </div>
+                </div>
+                
+                <!-- BAGIAN BARU: TIM INPUT DATA -->
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 shadow-inner shrink-0 mt-0.5"><i class="fas fa-keyboard text-sm"></i></div>
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Tim Data Regist</p>
+                        <div class="text-xs font-bold text-slate-800 flex flex-col mt-0.5 space-y-1">
+                            <span>1. Vik. Yosa Yesaya, S.Th</span>
+                            <span>2. Vik. Fifthdes Tylin Simatupang, S.Th </span>
+                            <span>3. Vik. Margaretha Romatua Togatorop, S.Th</span>
+                            <span>4. Vik. Yudika Setiawan Tampubolonm,M.Fil</span>
+                            <span>5. Elida Sidabutar </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 shadow-inner shrink-0"><i class="fas fa-server text-sm"></i></div>
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Infrastruktur & Basis Data</p>
+                        <p class="text-xs font-bold text-slate-800">Google Cloud System & Vercel</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 shadow-inner shrink-0"><i class="far fa-copyright text-sm"></i></div>
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Hak Cipta</p>
+                        <p class="text-xs font-bold text-slate-800">© 2026 Infokom Sinode GKPI</p>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+          <!-- PERBAIKAN: Penambahan DEFER agar tidak memblokir render layar -->
+  <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+  <script src="app.js" defer></script>
+</body>      
+</html>

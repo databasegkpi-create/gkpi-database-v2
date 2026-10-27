@@ -1,0 +1,21 @@
+{
+  "name": "GKPI Data Hub",
+  "short_name": "GKPI Hub",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "644x640",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "Logo.png",
+      "sizes": "644x640",
+      "type": "image/png"
+    }
+  ]
+}

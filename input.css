@@ -1,0 +1,208 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+   
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* 1. Warna dasar diletakkan di paling belakang */
+    html {
+        background-color: #f4f7fb;
+    }
+
+    /* 2. Paksa wadah aplikasi menjadi transparan agar foto bisa tembus */
+    body, #mainApp, #mainContent {
+        background-color: transparent !important;
+    }
+
+    /* 3. --- BACKGROUND FOTO ASLI & TRANSPARAN --- */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url('https://lh3.googleusercontent.com/d/1Pu8OgBaZUCEARI4yL2rM1tLnY7GfJUv3');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.65; /* Saya naikkan sedikit ke 15% agar warna aslinya lebih keluar */
+        z-index: -1; 
+        pointer-events: none; 
+    }
+
+    .hidden { display: none !important; }
+    .nav-active { background-color: #e0e7ff; color: #4f46e5 !important; font-weight: 700; }
+    .nav-active i { color: #4f46e5; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    .soft-shadow { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
+    .chart-box { position: relative; margin: auto; height: 280px; width: 100%; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    div:where(.swal2-container) div:where(.swal2-popup) { border-radius: 1.5rem !important; font-family: 'Plus Jakarta Sans', sans-serif; }
+    
+    .leaflet-container { z-index: 10 !important; }
+    .leaflet-top, .leaflet-bottom { z-index: 10 !important; }
+    div:where(.swal2-container) { z-index: 99999 !important; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .animate-zoom { animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: loadingSkeleton 1.5s infinite; border-radius: 8px; }
+    @keyframes loadingSkeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .page-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 800; font-size: 11px; transition: all 0.2s; }
+    .page-btn.active { background-color: #4f46e5; color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3); }
+    .page-btn.inactive { background-color: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+    .page-btn.inactive:hover { background-color: #e2e8f0; color: #334155; transform: translateY(-1px); }
+    details > summary { list-style: none; } details > summary::-webkit-details-marker { display: none; }
+
+ /* ========================================== */
+    /* PERBAIKAN DARK MODE (ENTERPRISE SLATE V4)  */
+    /* ========================================== */
+    
+    /* 1. Base Dark Background Utama */
+    html.dark, html.dark body, html.dark #mainApp, html.dark #mainContent { 
+        background-color: #0f172a !important; 
+        color: #f8fafc !important; 
+    }
+    
+    /* 2. Warna Kanvas Kartu, Modal, dan Kotak Putih */
+    html.dark .bg-white, html.dark .bg-white\/95, html.dark .bg-white\/80, html.dark .bg-white\/50, 
+    html.dark .bg-slate-50, html.dark .bg-slate-50\/50, html.dark .bg-slate-50\/80, html.dark .bg-slate-100 { 
+        background-color: #1e293b !important; 
+        border-color: #334155 !important; 
+        color: #f8fafc !important; 
+    }
+    
+    /* 3. OBAT HEADER & GRADASI SIDEBAR (Membuang kabut abu-abu) */
+    html.dark .glass-header, html.dark header, html.dark header.glass-header { 
+        background: rgba(30, 41, 59, 0.95) !important; 
+        backdrop-filter: blur(16px) !important; 
+        border-bottom-color: #334155 !important; 
+    }
+    html.dark .from-slate-50\/50 {
+        background-image: none !important; /* Menghilangkan gradasi putih di logo kiri atas */
+        background-color: transparent !important;
+    }
+
+    /* 4. OBAT IKON RAKSASA BERCahaya: Ubah putih pucat menjadi watermark gelap */
+    html.dark .text-slate-50 { 
+        color: rgba(15, 23, 42, 0.6) !important; 
+    }
+    
+    /* 5. Obat Shadow (Paksa menjadi bayangan hitam elegan) */
+    html.dark .shadow-sm, html.dark .shadow-md, html.dark .shadow-lg, html.dark .shadow-xl, html.dark .shadow-2xl, html.dark .soft-shadow,
+    html.dark [class*="shadow-indigo-"], html.dark [class*="shadow-rose-"], html.dark [class*="shadow-emerald-"], 
+    html.dark [class*="shadow-amber-"], html.dark [class*="shadow-slate-"], html.dark [class*="shadow-blue-"] {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    /* 6. PERBAIKAN SIDEBAR & AREA PROFIL BAWAH */
+    html.dark #sidebar { 
+        background-color: #0f172a !important; 
+        border-right-color: #1e293b !important;
+    }
+    html.dark #sidebar .bg-slate-50\/30 { 
+        background-color: #0f172a !important;
+        border-top-color: #1e293b !important;
+    }
+    
+    /* 7. Navigasi Sidebar - Menu Aktif & Hover */
+    html.dark .nav-active { 
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; 
+        color: #818cf8 !important; 
+        border-color: #334155 !important; 
+        border-left-color: #818cf8 !important; 
+        box-shadow: none !important; 
+    }
+    html.dark .nav-active i { color: #818cf8 !important; }
+    html.dark .sidebar-link-hover:hover {
+        background-color: #1e293b !important;
+        color: #a5b4fc !important;
+    }
+    
+    /* 8. Tombol Khusus Brankas Aset */
+    html.dark #btnBrankas {
+        background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%) !important;
+        color: #fcd34d !important;
+        border-left-color: #f59e0b !important;
+    }
+    
+    /* 9. PERBAIKAN BERCAK UJUNG KARTU */
+    html.dark .bg-gradient-to-br.from-indigo-100, 
+    html.dark .bg-gradient-to-br.from-purple-100,
+    html.dark .bg-gradient-to-br.from-amber-100 {
+        opacity: 0.05 !important; 
+    }
+    
+    /* 10. Warna Teks Dasar & Garis Tabel */
+    html.dark .text-slate-800, html.dark .text-slate-700, html.dark .text-slate-600 { color: #f8fafc !important; }
+    html.dark .text-slate-500, html.dark .text-slate-400 { color: #94a3b8 !important; }
+    html.dark .border-slate-100, html.dark .border-slate-200 { border-color: #334155 !important; }
+    
+    /* 11. Kotak Input, Form, & TomSelect */
+    html.dark input, html.dark select, html.dark textarea, html.dark .ts-control, html.dark .ts-dropdown { 
+        background-color: #0f172a !important; 
+        color: #f8fafc !important; 
+        border-color: #334155 !important; 
+    }
+    
+    /* 12. PENURUNAN SATURASI IKON & BADGE WARNA */
+    html.dark .bg-indigo-50 { background-color: rgba(79, 70, 229, 0.15) !important; color: #a5b4fc !important; }
+    html.dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.15) !important; color: #6ee7b7 !important; }
+    html.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.15) !important; color: #fcd34d !important; }
+    html.dark .bg-rose-50 { background-color: rgba(225, 29, 72, 0.15) !important; color: #fda4af !important; }
+    html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15) !important; color: #93c5fd !important; }
+    
+    html.dark .text-indigo-600, html.dark .text-indigo-500 { color: #a5b4fc !important; }
+    html.dark .text-emerald-600, html.dark .text-emerald-500 { color: #6ee7b7 !important; }
+    html.dark .text-amber-600, html.dark .text-amber-500 { color: #fcd34d !important; }
+    html.dark .text-rose-600, html.dark .text-rose-500 { color: #fda4af !important; }
+    html.dark .text-blue-600, html.dark .text-blue-500 { color: #93c5fd !important; }
+    
+    /* 13. Paginasi Tabel */
+    html.dark .page-btn.inactive { background-color: #0f172a !important; border-color: #334155 !important; color: #94a3b8 !important; }
+
+    /* 14. OBAT HOVER TABEL (List Selection tidak jadi putih) */
+    html.dark .hover\:bg-slate-50:hover, 
+    html.dark .hover\:bg-slate-100:hover,
+    html.dark tr.hover\:bg-slate-50:hover {
+        background-color: #334155 !important; /* Saat di-hover, baris berubah menjadi biru gelap solid */
+    }
+    
+    /* Memastikan teks di dalam baris yang di-hover tetap berwarna terang */
+    html.dark .hover\:bg-slate-50:hover td .text-slate-800,
+    html.dark .hover\:bg-slate-50:hover td .text-slate-700,
+    html.dark tr.hover\:bg-slate-50:hover div.text-slate-800 {
+        color: #ffffff !important;
+    }
+    
+    /* CUSTOM STYLE TOMSELECT AGAR TAMPIL MEWAH & TIDAK TERPOTONG */
+    .ts-wrapper { width: 100% !important; }
+    .ts-control { 
+        border-radius: 0.75rem !important; 
+        background-color: #f8fafc !important; 
+        border: 1px solid #e2e8f0 !important; 
+        padding: 0.875rem 1rem !important; 
+        font-size: 0.875rem !important; 
+        font-weight: 600 !important; 
+        color: #334155 !important; 
+        height: 52px !important; /* <--- Kunci tinggi mati di sini */
+        display: flex !important; 
+        align-items: center !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; 
+    }
+    .ts-control > input { font-family: inherit !important; font-size: 0.875rem !important; font-weight: 600 !important; }
+    .ts-wrapper.focus .ts-control { border-color: #4f46e5 !important; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2) !important; background-color: #ffffff !important; }
+    .ts-dropdown { border-radius: 0.75rem !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important; border: 1px solid #e2e8f0 !important; margin-top: 4px !important; z-index: 999999 !important; }
+    .ts-dropdown .option { padding: 0.75rem 1rem !important; font-size: 0.875rem !important; border-bottom: 1px solid #f1f5f9; transition: all 0.2s; cursor: pointer; }
+    .ts-dropdown .option.active, .ts-dropdown .option:hover { background-color: #e0e7ff !important; color: #4f46e5 !important; font-weight: 700 !important; }
+
+    /* --- OPTIMASI SCROLLING & ANTI PULL-TO-REFRESH --- */
+    html, body {
+        overscroll-behavior-y: none !important;
+        scroll-behavior: smooth;
+    }
+    .overflow-y-auto, .custom-scrollbar {
+        -webkit-overflow-scrolling: touch !important; 
+        will-change: scroll-position;
+    }
