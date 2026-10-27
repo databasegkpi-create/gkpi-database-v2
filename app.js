@@ -197,6 +197,44 @@ window.muatLibraryPDF = async function() {
             const mapArsip = data.map(a => ({ id: a.id_arsip, url: a.url_berkas, judul: a.nama_dokumen, kategori: a.kategori, resort: a.diunggah_oleh, unit_gereja: a.diunggah_oleh, keterangan: a.nama_dokumen, tgl: a.tanggal_dokumen }));
             return { status: 'success', data: mapArsip };
         }
+      // --- WHATSAPP BLAST (FONNTE API) ---
+        if (action === 'processBlastFonteWithFile') {
+            // Ganti tulisan ini dengan token dari dashboard Fonnte Anda
+            const FONNTE_TOKEN = "TOKEN_FONNTE_ANDA_DISINI"; 
+            
+            const targets = payload.list.map(p => {
+                let hp = String(p.No_HP).replace(/\D/g, '');
+                if (hp.startsWith("0")) hp = "62" + hp.slice(1);
+                return hp;
+            }).filter(hp => hp.length >= 9).join(',');
+
+            if (!targets) throw new Error("Tidak ada nomor tujuan yang valid.");
+
+            let formFonnte = new FormData();
+            formFonnte.append('target', targets);
+            formFonnte.append('message', payload.pesan);
+            
+            if (payload.fileObj) {
+                const byteCharacters = atob(payload.fileObj.content);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], {type: payload.fileObj.type});
+                formFonnte.append('file', blob, payload.fileObj.name);
+            }
+
+            const response = await fetch('https://api.fonnte.com/send', {
+                method: 'POST',
+                headers: { 'Authorization': FONNTE_TOKEN },
+                body: formFonnte
+            });
+            
+            const dataFonnte = await response.json();
+            if(!dataFonnte.status) throw new Error(dataFonnte.reason || "Gagal mengirim ke server Fonnte");
+            
+            await supabaseClient.from('log_aktivitas').insert([{ username: USER_NOW ? USER_NOW.nama : 'Sistem', role: USER_NOW ? USER_NOW.role : '', aksi: "BLAST WA", detail: `Mengirim pesan ke ${payload.list.length} target` }]);
+            return { status: 'success', message: 'Pesan Blast WA berhasil dikirim.' };
+        }
 
         return { status: 'success', message: 'Tindakan selesai' };
     } catch (error) {
@@ -306,16 +344,30 @@ muatLibraryBerat(() => { loadData(); });
   }
 async function tarikDariServer(tutupLoadingScreen) {
     try {
-        // Ganti supabase.from menjadi supabaseClient.from
+        // Fungsi cerdas penembus batas limit 1.000 baris Supabase
+        async function fetchAllSupabase(table) {
+            let allData = [];
+            let start = 0;
+            const limit = 1000;
+            while (true) {
+                const { data, error } = await supabaseClient.from(table).select('*').range(start, start + limit - 1);
+                if (error) throw error;
+                if (!data || data.length === 0) break;
+                allData.push(...data);
+                if (data.length < limit) break;
+                start += limit;
+            }
+            return { data: allData };
+        }
+
+        // Menarik 4 Tabel Utama tanpa batas baris & 1 Tabel Log terbatas 200 baris
         const [rGereja, rMajelis, rJemaat, rKorwil, rLog] = await Promise.all([
-            supabaseClient.from('gereja').select('*'),
-            supabaseClient.from('majelis').select('*'),
-            supabaseClient.from('jemaat').select('*'),
-            supabaseClient.from('korwil').select('*'),
+            fetchAllSupabase('gereja'),
+            fetchAllSupabase('majelis'),
+            fetchAllSupabase('jemaat'),
+            fetchAllSupabase('korwil'),
             supabaseClient.from('log_aktivitas').select('*').order('waktu', { ascending: false }).limit(200)
         ]);
-
-        if (rGereja.error) throw rGereja.error;
 
         DATA_MASTER = {
             gereja: rGereja.data.map(g => ({ Id_Gereja: g.id_gereja, Wilayah: g.wilayah, Induk_Resort: g.induk_resort, Resort: g.induk_resort, Nama_Gereja: g.nama_gereja, Status_Gereja: g.status_gereja, Tipe_Gereja: g.status_gereja, Total_RT: g.total_rt, Total_Jiwa: g.total_jiwa, Latitude: g.latitude, Longitude: g.longitude, No_Register: g.no_register, Tanggal_Berdiri: g.tanggal_berdiri })),
