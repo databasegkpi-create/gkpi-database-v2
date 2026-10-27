@@ -84,76 +84,99 @@ window.muatLibraryPDF = async function() {
   }
 
   // --- FUNGSI JEMBATAN API (TANGGUH & ANTI BADAI GOOGLE) ---
-  async function apiCall(action, payload = {}, retries = 3) {
-    payload.api_key = SECRET_API_KEY; 
-    
-    for (let i = 0; i < retries; i++) {
-        try {
-            // Kita paksa semua permintaan menggunakan POST agar Google tidak memblokir/mengarahkan ke halaman HTML
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST', 
-                redirect: 'follow', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: action, payload: payload })
-            });
-            
-            let textResult = await response.text();
-            
-            // Jika Google membalas dengan HTML (tanda server menolak/overload sementara)
-            if(textResult.trim().startsWith('<')) {
-                throw new Error("Server Google Overload");
-            }
-
-            try { 
-                return JSON.parse(textResult); 
-            } catch(err) { 
-                throw new Error("Server mengembalikan format data yang salah."); 
-            }
-            
-        } catch (error) {
-            // Jika sudah mencoba 3 kali dan tetap gagal
-            if (i === retries - 1) {
-                throw new Error("Akses API Terkunci Google! Pastikan deploy Apps Script diatur ke 'Execute as: Me' dan 'Who has access: Anyone'.");
-            }
-            // Tunggu 2 detik sebelum mencoba lagi agar tidak dikira spam oleh Google
-            await new Promise(resolve => setTimeout(resolve, 2000));
+ async function apiCall(action, payload = {}) {
+    try {
+        // --- SISTEM LOGIN & ADMIN ---
+        if (action === 'checkLogin') {
+            const { data, error } = await supabase.from('petugas').select('*').eq('username', payload.username).eq('password_hash', payload.password).single();
+            if (error || !data) return { status: 'fail' };
+            return { status: 'success', nama: data.nama_lengkap, role: data.role, username: data.username };
         }
+        if (action === 'getListPetugas') {
+            const { data, error } = await supabase.from('petugas').select('*');
+            if (error) throw error; return data.map(p => ({ Nama: p.nama_lengkap, Username: p.username, Role: p.role }));
+        }
+
+        // --- MAJELIS ---
+        if (action === 'simpanMajelis') {
+            const { error } = await supabase.from('majelis').insert([{ id_majelis: "M" + Date.now().toString().slice(-6), nama_lengkap: payload.Nama_Lengkap, jabatan: payload.Jabatan, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah, no_hp: payload.No_HP }]);
+            if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'updateMajelis') {
+            const { error } = await supabase.from('majelis').update({ nama_lengkap: payload.Nama_Lengkap, jabatan: payload.Jabatan, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah, no_hp: payload.No_HP }).eq('id_majelis', payload.ID_Majelis);
+            if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'mutasiPersonil') {
+            const { error } = await supabase.from('majelis').update({ nama_gereja: payload.Nama_Gereja_Baru, resort: payload.Resort_Baru, wilayah: payload.Wilayah_Baru }).eq('id_majelis', payload.ID_Majelis);
+            if (error) throw error; return { status: 'success', message: 'Personil dimutasi' };
+        }
+        if (action === 'hapusMajelis') {
+            const { error } = await supabase.from('majelis').delete().eq('id_majelis', payload.id);
+            if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'importMajelisMassal') {
+            const arr = payload.excelData.map(m => ({ id_majelis: "M" + Math.floor(Math.random()*1000000), nama_lengkap: m.Nama_Lengkap, jabatan: m.Jabatan, nama_gereja: m.Nama_Gereja, resort: m.Resort, wilayah: m.Wilayah, no_hp: m.No_HP }));
+            const { error } = await supabase.from('majelis').insert(arr);
+            if (error) throw error; return { status: 'success', added: arr.length };
+        }
+
+        // --- JEMAAT ---
+        if (action === 'simpanJemaat') {
+            const { error } = await supabase.from('jemaat').insert([{ id_jemaat: "J" + Date.now(), no_kk: payload.No_KK, nama_lengkap: payload.Nama_Lengkap, status_keluarga: payload.Status_Keluarga, jenis_kelamin: payload.Jenis_Kelamin, tanggal_lahir: payload.Tanggal_Lahir, pekerjaan: payload.Pekerjaan, kondisi: payload.Kondisi, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah }]);
+            if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'updateJemaat') {
+            const { error } = await supabase.from('jemaat').update({ no_kk: payload.No_KK, nama_lengkap: payload.Nama_Lengkap, status_keluarga: payload.Status_Keluarga, jenis_kelamin: payload.Jenis_Kelamin, tanggal_lahir: payload.Tanggal_Lahir, pekerjaan: payload.Pekerjaan, kondisi: payload.Kondisi, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah }).eq('id_jemaat', payload.ID_Jemaat);
+            if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'hapusJemaat') {
+            const { error } = await supabase.from('jemaat').delete().eq('id_jemaat', payload.id);
+            if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'hapusKeluarga') {
+            const { error } = await supabase.from('jemaat').delete().eq('no_kk', payload.no_kk);
+            if (error) throw error; return { status: 'success' };
+        }
+
+        // --- KORWIL ---
+        if (action === 'simpanKorwil') {
+            const { error } = await supabase.from('korwil').insert([{ id_korwil: "W" + payload.Wilayah + Date.now().toString().slice(-4), nama_korwil: payload.Nama_Korwil, wilayah: payload.Wilayah, no_hp: payload.No_HP, status: payload.Status, keterangan: payload.Keterangan }]);
+            if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'updateKorwil') {
+            const { error } = await supabase.from('korwil').update({ nama_korwil: payload.Nama_Korwil, wilayah: payload.Wilayah, no_hp: payload.No_HP, status: payload.Status, keterangan: payload.Keterangan }).eq('id_korwil', payload.ID_Korwil);
+            if (error) throw error; return { status: 'success' };
+        }
+        if (action === 'hapusKorwil') {
+            const { error } = await supabase.from('korwil').delete().eq('id_korwil', payload.id);
+            if (error) throw error; return { status: 'success' };
+        }
+
+        // --- GEREJA ---
+        if (action === 'updateDataGereja') {
+            const { error } = await supabase.from('gereja').update({
+                nama_gereja: payload.obj.Nama_Gereja_Baru, status_gereja: payload.obj.Status_Gereja, induk_resort: payload.obj.Induk_Resort, total_rt: payload.obj.Total_RT, total_jiwa: payload.obj.Total_Jiwa, latitude: payload.obj.Latitude, longitude: payload.obj.Longitude, no_register: payload.obj.No_Register, tanggal_berdiri: payload.obj.Tanggal_Berdiri
+            }).eq('nama_gereja', payload.obj.Nama_Gereja_Lama);
+            if (error) throw error;
+            if (payload.obj.Nama_Gereja_Lama !== payload.obj.Nama_Gereja_Baru) {
+                await supabase.from('majelis').update({nama_gereja: payload.obj.Nama_Gereja_Baru}).eq('nama_gereja', payload.obj.Nama_Gereja_Lama);
+                await supabase.from('jemaat').update({nama_gereja: payload.obj.Nama_Gereja_Baru}).eq('nama_gereja', payload.obj.Nama_Gereja_Lama);
+            }
+            return { status: 'success' };
+        }
+
+        // --- LOG AKTIVITAS ---
+        if (action === 'catatLogEvent') {
+            await supabase.from('log_aktivitas').insert([{ username: USER_NOW ? USER_NOW.nama : 'Sistem', role: USER_NOW ? USER_NOW.role : '', aksi: payload.aksi, detail: payload.detail }]);
+            return { status: 'success' };
+        }
+
+        return { status: 'success', message: 'Tindakan selesai' };
+    } catch (error) {
+        console.error("Supabase Error (" + action + "):", error);
+        throw new Error(error.message || "Gagal memproses data.");
     }
-  }
-
-document.addEventListener('DOMContentLoaded', () => {
-      
-      const daftarModal = document.querySelectorAll('[id^="modal"]');
-      daftarModal.forEach(modal => {
-          if (modal.classList.contains('fixed')) {
-              document.body.appendChild(modal); // Pindahkan paksa ke akar halaman (body)
-          }
-      });
-  
-      if(localStorage.getItem('gkpi_dark_mode') === 'true') document.documentElement.classList.add('dark'); updateDarkModeIcon();
-      
-      // Auto-Login
-      const saved = localStorage.getItem('si_majelis_user');
-     if (saved) { 
-    try { 
-        USER_NOW = JSON.parse(saved); 
-        showMainApp(); 
-        muatLibraryBerat(() => { loadData(); }); 
-    } catch(e) { localStorage.removeItem('si_majelis_user'); } 
 }
-      
-      // ==== SENSOR AUTO HIDE (MOUSE LEAVE) ====
-      const sidebarEl = document.getElementById('sidebar');
-      if(sidebarEl) {
-          sidebarEl.addEventListener('mouseleave', () => {
-              // Jika di Laptop dan kursor menjauh, sidebar akan menutup sendiri
-              if (window.innerWidth >= 768) {
-                  sidebarEl.classList.add('md:-ml-[280px]');
-              }
-          });
-      }
-  });
-
   function toggleDarkMode() { document.documentElement.classList.toggle('dark'); localStorage.setItem('gkpi_dark_mode', document.documentElement.classList.contains('dark')); updateDarkModeIcon(); }
   function updateDarkModeIcon() { const btn = document.getElementById('btnDarkMode'); const icon = btn.querySelector('i'); if(document.documentElement.classList.contains('dark')) { icon.className = 'fas fa-sun text-amber-400'; } else { icon.className = 'fas fa-moon'; } }
 
@@ -253,47 +276,38 @@ muatLibraryBerat(() => { loadData(); });
       
       tarikDariServer(true);
   }
-function tarikDariServer(tutupLoadingScreen) {
-      apiCall('getAppData').then(async res => { 
-          if(res.status === 'error') throw new Error(res.message);
-          
-          DATA_MASTER = res; 
-          
-          // Pastikan semua array tersedia agar tidak Error
-          if(!DATA_MASTER.jemaat) DATA_MASTER.jemaat = []; 
-          if(!DATA_MASTER.gereja) DATA_MASTER.gereja = [];
-          if(!DATA_MASTER.majelis) DATA_MASTER.majelis = []; 
-          if(!DATA_MASTER.jabatan) DATA_MASTER.jabatan = [];
-          if(!DATA_MASTER.log) DATA_MASTER.log = [];
-          
-          // PERBAIKAN: Paksa buat array KORWIL jika API gagal mengirimnya
-          if(!DATA_MASTER.korwil) DATA_MASTER.korwil = []; 
+async function tarikDariServer(tutupLoadingScreen) {
+    try {
+        // Menarik 5 Tabel Utama secara Paralel (Meningkatkan Kecepatan Load)
+        const [rGereja, rMajelis, rJemaat, rKorwil, rLog] = await Promise.all([
+            supabase.from('gereja').select('*'),
+            supabase.from('majelis').select('*'),
+            supabase.from('jemaat').select('*'),
+            supabase.from('korwil').select('*'),
+            supabase.from('log_aktivitas').select('*').order('waktu', { ascending: false }).limit(200)
+        ]);
 
-          // Simpan ke Cache
-          try { await localforage.setItem('gkpi_data_cache', DATA_MASTER); } catch(e) { console.error("Gagal save cache"); }
+        if (rGereja.error) throw rGereja.error;
 
-          // Panggil mesin perakit layar
-          eksekusiRenderEstafet();
+        // Jembatan Penerjemah: Mengubah format Supabase ke format Kapital aplikasi Anda
+        DATA_MASTER = {
+            gereja: rGereja.data.map(g => ({ Id_Gereja: g.id_gereja, Wilayah: g.wilayah, Induk_Resort: g.induk_resort, Resort: g.induk_resort, Nama_Gereja: g.nama_gereja, Status_Gereja: g.status_gereja, Tipe_Gereja: g.status_gereja, Total_RT: g.total_rt, Total_Jiwa: g.total_jiwa, Latitude: g.latitude, Longitude: g.longitude, No_Register: g.no_register, Tanggal_Berdiri: g.tanggal_berdiri })),
+            majelis: rMajelis.data.map(m => ({ ID_Majelis: m.id_majelis, Nama_Lengkap: m.nama_lengkap, Jabatan: m.jabatan, Nama_Gereja: m.nama_gereja, Resort: m.resort, Wilayah: m.wilayah, No_HP: m.no_hp })),
+            jemaat: rJemaat.data.map(j => ({ ID_Jemaat: j.id_jemaat, No_KK: j.no_kk, Nama_Lengkap: j.nama_lengkap, Status_Keluarga: j.status_keluarga, Jenis_Kelamin: j.jenis_kelamin, Tanggal_Lahir: j.tanggal_lahir, Pekerjaan: j.pekerjaan, Kondisi: j.kondisi, Nama_Gereja: j.nama_gereja, Resort: j.resort, Wilayah: j.wilayah })),
+            korwil: rKorwil.data.map(k => ({ ID_Korwil: k.id_korwil, Nama_Korwil: k.nama_korwil, Wilayah: k.wilayah, No_HP: k.no_hp, Status: k.status, Keterangan: k.keterangan })),
+            log: rLog.data.map(l => ({ Waktu: l.waktu, Aksi: l.aksi, Sumber: "Dashboard Pusat", Detail: l.detail })),
+            jabatan: [...new Set((rMajelis.data||[]).map(m => m.jabatan))].map(j => ({ Nama_Jabatan: j })),
+            petugas: [] 
+        };
 
-          // PAKSAAN RENDER KHUSUS KORWIL
-          setTimeout(() => {
-              const tabKorwilAktif = document.getElementById('kontenKorwil') && !document.getElementById('kontenKorwil').classList.contains('hidden');
-              if (tabKorwilAktif && typeof renderDataKorwil === 'function') {
-                  renderDataKorwil(); 
-              }
-          }, 300); // Beri sedikit jeda agar DOM HTML siap
+        try { await localforage.setItem('gkpi_data_cache', DATA_MASTER); } catch(e) {}
+        eksekusiRenderEstafet();
 
-          if(tutupLoadingScreen) {
-              Swal.close(); 
-              const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 }); 
-              Toast.fire({ icon: 'success', title: 'Data Diperbarui!' });
-          }
-      }).catch(err => { 
-          if(tutupLoadingScreen) { 
-              setTimeout(() => { Swal.fire({ icon: 'error', title: 'Koneksi Gagal', html: String(err) }); }, 500); 
-          }
-      });
-  }
+        if(tutupLoadingScreen) { Swal.close(); const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 }); Toast.fire({ icon: 'success', title: 'Data Supabase Tersinkronisasi!' }); }
+    } catch (err) {
+        if(tutupLoadingScreen) { setTimeout(() => { Swal.fire({ icon: 'error', title: 'Koneksi Database Gagal', html: String(err.message) }); }, 500); }
+    }
+}
 
 // MESIN 2: Rendering Bertahap (Anti-Freeze & Auto-Refresh Checklist)
 function eksekusiRenderEstafet() {
