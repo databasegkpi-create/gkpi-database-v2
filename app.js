@@ -134,6 +134,36 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             const { error } = await supabase.from('jemaat').update({ no_kk: payload.No_KK, nama_lengkap: payload.Nama_Lengkap, status_keluarga: payload.Status_Keluarga, jenis_kelamin: payload.Jenis_Kelamin, tanggal_lahir: payload.Tanggal_Lahir, pekerjaan: payload.Pekerjaan, kondisi: payload.Kondisi, nama_gereja: payload.Nama_Gereja, resort: payload.Resort, wilayah: payload.Wilayah }).eq('id_jemaat', payload.ID_Jemaat);
             if (error) throw error; return { status: 'success' };
         }
+      // --- IMPORT JEMAAT MASSAL ---
+        if (action === 'importJemaatMassal') {
+            const arr = payload.excelData.map(j => ({ id_jemaat: "J" + Math.floor(Math.random()*1000000), no_kk: j.No_KK, nama_lengkap: j.Nama_Lengkap, status_keluarga: j.Status_Keluarga, jenis_kelamin: j.Jenis_Kelamin, tanggal_lahir: j.Tanggal_Lahir, pekerjaan: j.Pekerjaan, kondisi: j.Kondisi, nama_gereja: j.Nama_Gereja, resort: j.Resort, wilayah: j.Wilayah }));
+            const { error } = await supabase.from('jemaat').insert(arr);
+            if (error) throw error; return { status: 'success', added: arr.length };
+        }
+
+        // --- MANAJEMEN PETUGAS / ADMIN ---
+        if (action === 'simpanPetugas') {
+            const { error } = await supabase.from('petugas').insert([{ id_petugas: "P" + Date.now(), nama_lengkap: payload.nama, username: payload.username, password_hash: payload.password, role: payload.role, status: 'Aktif' }]);
+            if (error) throw error; return { status: 'success', message: 'Petugas berhasil ditambahkan.' };
+        }
+        if (action === 'hapusPetugas') {
+            const { error } = await supabase.from('petugas').delete().eq('username', payload.username);
+            if (error) throw error; return { status: 'success' };
+        }
+
+        // --- BERSIHKAN LOG AKTIVITAS ---
+        if (action === 'bersihkanLog') {
+            const { error } = await supabase.from('log_aktivitas').delete().not('aksi', 'is', null);
+            if (error) throw error; return { status: 'success' };
+        }
+
+        // --- E-ARSIP (TARIK DATA DOKUMEN) ---
+        if (action === 'getArsipDatabase') {
+            const { data, error } = await supabase.from('e_arsip').select('*');
+            if (error) throw error; 
+            const mapArsip = data.map(a => ({ id: a.id_arsip, url: a.url_berkas, judul: a.nama_dokumen, kategori: a.kategori, resort: a.diunggah_oleh, unit_gereja: a.diunggah_oleh, keterangan: a.nama_dokumen, tgl: a.tanggal_dokumen }));
+            return { status: 'success', data: mapArsip };
+        }
         if (action === 'hapusJemaat') {
             const { error } = await supabase.from('jemaat').delete().eq('id_jemaat', payload.id);
             if (error) throw error; return { status: 'success' };
@@ -175,6 +205,8 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             await supabase.from('log_aktivitas').insert([{ username: USER_NOW ? USER_NOW.nama : 'Sistem', role: USER_NOW ? USER_NOW.role : '', aksi: payload.aksi, detail: payload.detail }]);
             return { status: 'success' };
         }
+
+      
 
         return { status: 'success', message: 'Tindakan selesai' };
     } catch (error) {
