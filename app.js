@@ -19,6 +19,11 @@ window.muatLibraryPDF = async function() {
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYnIaYGBjpKR8efmRqOGu9FPbydSTh1FeN6im856IWRXdC1QvHDDY8Kp5w3lU0p9T6/exec";
   const SECRET_API_KEY = "GKPI_HUB_SECURE_2026";
 
+// TAMBAHKAN TEPAT DI SINI (Di luar dari fungsi apapun)
+const supabaseUrl = 'https://qhvfrcriptbyunmduizu.supabase.co';
+const supabaseKey = 'sb_publishable_WThfxNW0WuJww3EMOOljXA_aro1-pB4';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
   let DATA_MASTER = { majelis: [], gereja: [], jabatan: [], jemaat: [], petugas: [], log: [] };
   let EDIT_MODE_ID = null;
   let USER_NOW = null;
